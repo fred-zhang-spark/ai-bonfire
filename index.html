@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Spark Talk · AI篝火</title>
+<style>
+  :root { --bg:#000; --white:#f5f5f7; --gray1:#c4c4cc; --gray2:#6e6e73; --orange:#ff9f0a; --pink:#ff375f; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { background:var(--bg); color:var(--white); font-family:-apple-system,"SF Pro Display","PingFang SC","Helvetica Neue",sans-serif; min-height:100vh; }
+  body { display:flex; flex-direction:column; align-items:center; padding:60px 24px 40px; }
+  .logo { font-size:56px; margin-bottom:16px; animation:float 3.5s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  h1 { font-size:clamp(28px,5vw,42px); font-weight:700; letter-spacing:-0.02em; margin-bottom:8px; }
+  .sub { font-size:clamp(14px,2.5vw,18px); color:var(--gray1); margin-bottom:40px; text-align:center; line-height:1.6; }
+  .card-list { display:flex; flex-direction:column; gap:14px; width:100%; max-width:480px; }
+  .card {
+    display:flex; align-items:center; gap:16px; padding:20px 24px; border-radius:16px;
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+    text-decoration:none; color:var(--white); transition:all 0.3s;
+  }
+  .card:hover { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.15); transform:translateY(-2px); }
+  .card-icon { font-size:2rem; flex-shrink:0; }
+  .card-title { font-size:1.05rem; font-weight:700; margin-bottom:3px; }
+  .card-desc { font-size:0.82rem; color:var(--gray2); line-height:1.5; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:6px; font-size:0.7rem; font-weight:600; margin-left:8px; vertical-align:middle; }
+  .tag-new { background:rgba(255,55,95,0.15); color:var(--pink); }
+  .tag-guide { background:rgba(255,159,10,0.15); color:var(--orange); }
+  .footer { margin-top:48px; text-align:center; color:var(--gray2); font-size:0.8rem; line-height:1.8; }
+  .footer a { color:var(--orange); text-decoration:none; }
+</style>
+</head>
+<body>
+  <div class="logo">🔥</div>
+  <h1>Spark Talk · AI篝火</h1>
+  <div class="sub">每周一期，和孩子围坐在一起<br>聊一聊这个正在被AI改变的世界</div>
+
+  <div class="card-list">
+    <a class="card" href="guide.html">
+      <div class="card-icon">📖</div>
+      <div>
+        <div class="card-title">家长必读手册 <span class="tag tag-guide">必看</span></div>
+        <div class="card-desc">不懂AI也能带好讨论的四个锦囊</div>
+      </div>
+    </a>
+    <a class="card" href="ep00.html">
+      <div class="card-icon">🚀</div>
+      <div>
+        <div class="card-title">第0期 · 你生在AI时代，何其幸运</div>
+        <div class="card-desc">从蒸汽机到AI，人类经历了四次大飞跃</div>
+      </div>
+    </a>
+    <a class="card" href="ep01.html">
+      <div class="card-icon">🤖</div>
+      <div>
+        <div class="card-title">第1期 · 什么是AI？</div>
+        <div class="card-desc">拆解"人工智能"四个字，AI到底会什么</div>
+      </div>
+    </a>
+    <a class="card" href="ep02.html">
+      <div class="card-icon">🔤</div>
+      <div>
+        <div class="card-title">第2期 · AI怎么读懂你的话？ <span class="tag tag-new">最新</span></div>
+        <div class="card-desc">文字怎么变成数字，AI怎么猜下一个词</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="footer">
+    🪵 Spark Talk · AI篝火 · 让好奇心发光<br>
+    每周更新 · By Fred Zhang
+  </div>
+</body>
+</html>

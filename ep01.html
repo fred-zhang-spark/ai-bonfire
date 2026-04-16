@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="format-detection" content="telephone=no,email=no">
+<title>第1期 · 什么是AI？</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-dark: #0f0f23;
+    --bg-card: #1a1a2e;
+    --accent: #00d4ff;
+    --accent2: #ff6b9d;
+    --accent3: #c084fc;
+    --accent4: #34d399;
+    --text: #e8e8f0;
+    --text-dim: #8888aa;
+    --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+  }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ── Slide container ── */
+  .slide-deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 80px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .slide::before, .slide::after { content:''; flex:1 1 0%; min-height:24px; }
+  .slide::after { min-height:40px; }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── Typography ── */
+  h1 {
+    font-size: 3.2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+    text-align: center;
+    line-height: 1.3;
+  }
+  h2 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .subtitle {
+    font-size: 1.4rem;
+    color: var(--text-dim);
+    margin-bottom: 32px;
+    text-align: center;
+  }
+  .big-text {
+    font-size: 1.6rem;
+    line-height: 2;
+    text-align: center;
+    max-width: 800px;
+  }
+  .keyword {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+  }
+  .en {
+    font-size: 0.85em;
+    color: var(--accent3);
+    font-style: italic;
+  }
+
+  /* ── Emoji icon ── */
+  .icon-big {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  /* ── Cards grid ── */
+  .cards {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 28px 24px;
+    width: 220px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+  }
+  .card .card-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .card .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .card .card-desc {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+  .card.selected {
+    border-color: var(--accent4);
+    background: rgba(52, 211, 153, 0.1);
+  }
+  .card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    color: var(--accent4);
+    font-size: 1.4rem;
+    font-weight: 900;
+  }
+
+  /* ── Journey animation ── */
+  .journey-container {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .journey-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+    width: 140px;
+  }
+  .journey-step.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .journey-step .step-icon {
+    font-size: 2.8rem;
+    margin-bottom: 8px;
+  }
+  .journey-step .step-label {
+    font-size: 0.95rem;
+    text-align: center;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .journey-step .step-sublabel {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 4px;
+  }
+  .journey-arrow {
+    font-size: 1.8rem;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    margin: 0 4px;
+    padding-bottom: 30px;
+  }
+  .journey-arrow.visible {
+    opacity: 1;
+  }
+
+  /* ── Hands-on badge ── */
+  .hands-on-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ff6b9d33, #c084fc33);
+    border: 1px solid var(--accent2);
+    border-radius: 100px;
+    padding: 8px 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 24px;
+    animation: pulse-border 2s ease-in-out infinite;
+  }
+  @keyframes pulse-border {
+    0%, 100% { border-color: var(--accent2); }
+    50% { border-color: var(--accent3); }
+  }
+
+  /* ── Try-it prompt box ── */
+  .try-box {
+    background: var(--bg-card);
+    border: 2px dashed var(--accent2);
+    border-radius: 20px;
+    padding: 32px 40px;
+    max-width: 700px;
+    text-align: center;
+  }
+  .try-box h3 {
+    font-size: 1.5rem;
+    color: var(--accent2);
+    margin-bottom: 16px;
+  }
+  .try-box p {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--text);
+  }
+  .try-box .prompt-example {
+    display: inline-block;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 10px 20px;
+    margin: 8px 6px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .try-box .prompt-example:hover {
+    background: rgba(0, 212, 255, 0.2);
+    transform: scale(1.05);
+  }
+
+  /* ── Quiz / Discussion ── */
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 16px;
+    max-width: 600px;
+    width: 100%;
+  }
+  .quiz-option {
+    background: var(--bg-card);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 18px 24px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+  }
+  .quiz-option:hover {
+    border-color: var(--accent);
+    background: rgba(0, 212, 255, 0.05);
+  }
+  .quiz-option.correct {
+    border-color: var(--accent4);
+    background: rgba(52, 211, 153, 0.15);
+  }
+  .quiz-option.wrong {
+    border-color: var(--accent2);
+    background: rgba(255, 107, 157, 0.1);
+    opacity: 0.6;
+  }
+  .quiz-feedback {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    min-height: 60px;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* ── Comparison layout ── */
+  .compare {
+    display: flex;
+    gap: 40px;
+    margin-top: 24px;
+    align-items: stretch;
+  }
+  .compare-col {
+    flex: 1;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 340px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .compare-col h3 {
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .compare-col ul {
+    list-style: none;
+    padding: 0;
+  }
+  .compare-col li {
+    padding: 8px 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .compare-col li:last-child { border: none; }
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.4s ease;
+    z-index: 100;
+  }
+
+  /* ── Slide number ── */
+  .slide-num {
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    z-index: 100;
+  }
+
+  /* ── Navigation hints ── */
+  .nav-hint {
+    position: fixed;
+    bottom: 20px;
+    left: 30px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    z-index: 100;
+    display: flex;
+    gap: 12px;
+  }
+  .nav-hint kbd {
+    display: inline-block;
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 0.85rem;
+    font-family: inherit;
+  }
+
+  /* ── Thinking dots animation ── */
+  .thinking-dots {
+    display: inline-flex;
+    gap: 6px;
+    margin-left: 8px;
+  }
+  .thinking-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: dot-bounce 1.4s ease-in-out infinite;
+  }
+  .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dot-bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ── Reveal children one by one ── */
+  .reveal-list > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+  }
+  .reveal-list > *.shown {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Summary checklist ── */
+  .checklist {
+    list-style: none;
+    padding: 0;
+    max-width: 600px;
+  }
+  .checklist li {
+    font-size: 1.25rem;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.5s ease;
+  }
+  .checklist li.shown {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .checklist li .check {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Parent note ── */
+  .parent-note {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    background: rgba(192, 132, 252, 0.1);
+    border: 1px solid var(--accent3);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 0.8rem;
+    color: var(--accent3);
+    max-width: 260px;
+    z-index: 100;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .parent-note:hover {
+    background: rgba(192, 132, 252, 0.2);
+  }
+  .parent-note.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .parent-note-icon { margin-right: 6px; }
+
+  /* ── Typing effect ── */
+  .typewriter {
+    border-right: 3px solid var(--accent);
+    white-space: nowrap;
+    overflow: hidden;
+    animation: blink-caret 0.8s step-end infinite;
+  }
+  @keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--accent); }
+  }
+
+  /* ── Reset button ── */
+  .reset-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:16px; padding:8px 20px; border-radius:10px; font-size:0.85rem;
+    cursor:pointer; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12);
+    color: #8888aa; transition:all 0.2s; font-family:inherit;
+  }
+  .reset-btn:hover { background:rgba(255,255,255,0.08); color:#e8e8f0; border-color:rgba(255,255,255,0.25); }
+
+  /* ── Background decoration ── */
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 107, 157, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width:768px) {
+    .slide { padding:0 20px; }
+    .slide::before { min-height:16px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.6rem; margin-bottom:16px; }
+    .subtitle { font-size:1.1rem; margin-bottom:20px; }
+    .big-text { font-size:1.2rem; line-height:1.8; }
+    .cards { gap:14px; }
+    .card { width:160px; padding:18px 14px; }
+    .card .card-icon { font-size:2.2rem; }
+    .card .card-title { font-size:1rem; }
+    .card .card-desc { font-size:0.8rem; }
+    .journey-step { width:100px; }
+    .journey-step .step-icon { font-size:2rem; }
+    .journey-step .step-label { font-size:0.8rem; }
+    .journey-arrow { font-size:1.2rem; }
+    .try-box { padding:20px 18px; }
+    .try-box h3 { font-size:1.2rem; }
+    .try-box p { font-size:1rem; }
+    .try-box .prompt-example { font-size:0.9rem; padding:8px 14px; }
+    .compare { flex-direction:column; gap:16px; align-items:center; }
+    .compare-col { max-width:100%; }
+    .quiz-option { padding:14px 18px; font-size:1rem; }
+    .checklist li { font-size:1rem; }
+    .nav-hint { display:none; }
+    .parent-note { display:none; }
+  }
+  @media (max-width:400px) {
+    h1 { font-size:1.6rem; }
+    .cards { gap:10px; }
+    .card { width:140px; padding:14px 10px; }
+    .journey-step { width:70px; }
+    .journey-step .step-icon { font-size:1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="progress-bar" id="progressBar"></div>
+<div class="slide-num" id="slideNum"></div>
+<div class="nav-hint">
+  <span><kbd>←</kbd> <kbd>→</kbd> 翻页</span>
+  <span><kbd>Space</kbd> 下一步</span>
+</div>
+
+<!-- Parent notes (toggle with P key) -->
+<div class="parent-note hidden" id="parentNote" onclick="this.classList.add('hidden')">
+  <span class="parent-note-icon">👨‍👩‍👦</span>
+  <span id="parentNoteText"></span>
+</div>
+
+<div class="slide-deck" id="deck">
+
+  <!-- ===== SLIDE 0: Cover ===== -->
+  <div class="slide" data-parent-note="这是封面页，可以先问孩子：你知道什么是AI吗？让孩子先自由说说。">
+    <div class="icon-big">🤖</div>
+    <h1>什么是AI？</h1>
+    <p class="subtitle">当你问豆包一句话，背后发生了什么？</p>
+    <p style="margin-top: 40px; color: var(--text-dim); font-size: 1.1rem;">
+      与孩子一起探索AI时代 · 第1期
+    </p>
+    <p style="margin-top: 12px; color: var(--text-dim); font-size: 0.9rem;">
+      点击任意位置 或 按 → 开始
+    </p>
+  </div>
+
+  <!-- ===== SLIDE 1: 你用过AI吗？ ===== -->
+  <div class="slide" data-parent-note="让孩子点选用过的，没用过的也没关系。重点是让孩子意识到AI已经在身边。">
+    <h2>🎯 你用过这些吗？</h2>
+    <p class="subtitle">点一点你用过的——它们都藏着AI哦！</p>
+    <div class="cards" id="aiExamples">
+      <div class="card" onclick="this.classList.toggle('selected')">
+        <span class="card-icon">📱</span>
+        <div class="card-title">Siri / 小爱</div>
+        <div class="card-desc">语音助手</div>
+      </div>
+      <div class="card" onclick="this.classList.toggle('selected')">
+        <span class="card-icon">💬</span>
+        <div class="card-title">豆包</div>
+        <div class="card-desc">聊天机器人</div>
+      </div>
+      <div class="card" onclick="this.classList.toggle('selected')">
+        <span class="card-icon">🎨</span>
+        <div class="card-title">AI画画</div>
+        <div class="card-desc">输入文字，生成图片</div>
+      </div>
+      <div class="card" onclick="this.classList.toggle('selected')">
+        <span class="card-icon">📷</span>
+        <div class="card-title">相册搜索</div>
+        <div class="card-desc">搜"猫"就找到猫的照片</div>
+      </div>
+      <div class="card" onclick="this.classList.toggle('selected')">
+        <span class="card-icon">🎮</span>
+        <div class="card-title">游戏里的NPC</div>
+        <div class="card-desc">会说话的游戏角色</div>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="document.querySelectorAll('#aiExamples .card').forEach(c=>c.classList.remove('selected'))">🔄 重新选</button>
+  </div>
+
+  <!-- ===== SLIDE 2: AI是什么？ ===== -->
+  <div class="slide" data-parent-note="核心比喻：AI像一个读了很多很多书的学生，能模仿但不是真的'懂'。可以问孩子：你觉得它像什么？">
+    <div class="icon-big">🧠</div>
+    <h2>那 AI 到底是什么？</h2>
+    <div class="big-text" style="margin-top: 16px;">
+      <p>AI 的全称是 <span class="keyword">Artificial Intelligence</span></p>
+      <p style="margin-top: 8px;">中文叫 <span class="keyword">人工智能</span></p>
+      <p style="margin-top: 24px; font-size: 1.3rem;">
+        简单说：人类教会电脑<br>
+        <span class="keyword">看</span>、<span class="keyword">听</span>、<span class="keyword">读</span>、<span class="keyword">写</span>、<span class="keyword">画</span> 的能力
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 3: 比喻 ===== -->
+  <div class="slide" data-parent-note="这个比喻很关键——帮孩子建立'AI不是魔法，是从数据中学习'的直觉。">
+    <h2>🎓 一个比喻</h2>
+    <div class="compare">
+      <div class="compare-col" style="border-color: var(--accent);">
+        <h3 style="color: var(--accent);">🧒 你学认字</h3>
+        <ul>
+          <li>看了很多绘本 📚</li>
+          <li>大人教你读 🗣️</li>
+          <li>错了会被纠正 ✏️</li>
+          <li>慢慢就会了！ ⭐</li>
+        </ul>
+      </div>
+      <div class="compare-col" style="border-color: var(--accent2);">
+        <h3 style="color: var(--accent2);">🤖 AI学说话</h3>
+        <ul>
+          <li>读了整个互联网的文字 🌐</li>
+          <li>工程师设计学习方法 👩‍💻</li>
+          <li>答错了会被调整 🔧</li>
+          <li>慢慢就能对话了！ 💬</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top: 28px; font-size: 1.15rem; color: var(--accent3);">
+      你和AI其实都是 <span class="keyword">从经验中学习</span> 的！
+    </p>
+  </div>
+
+  <!-- ===== SLIDE 4: 动手时间 1 ===== -->
+  <div class="slide" data-parent-note="第一次动手！打开豆包或Claude，让孩子自己打字（或语音）问一个问题。观察AI是怎么一个字一个字蹦出来的。">
+    <div class="hands-on-badge">🖐️ 动手时间！</div>
+    <h2>一起问AI一个问题</h2>
+    <div class="try-box">
+      <h3>试试对豆包或Claude说：</h3>
+      <div style="margin: 16px 0;">
+        <span class="prompt-example">🦕 恐龙为什么灭绝了？</span>
+        <span class="prompt-example">🌙 月亮为什么会变形状？</span>
+        <span class="prompt-example">🐱 猫为什么会发出咕噜声？</span>
+      </div>
+      <p style="margin-top: 20px; color: var(--accent3); font-size: 1.1rem;">
+        👀 仔细看：AI的回答是一个字一个字蹦出来的！<br>
+        想一想：它是提前写好的，还是现场"想"的？
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 5: 一句话的旅程 ===== -->
+  <div class="slide" data-parent-note="这是核心科普页。按空格键一步步展示旅程，每步停下来和孩子讨论。重点是让孩子知道：你的话穿越了很远的距离才被'回答'。" data-journey="true">
+    <h2>🚀 一句话的奇妙旅程</h2>
+    <p class="subtitle">当你发送"恐龙为什么灭绝"，发生了什么？</p>
+    <div class="journey-container" id="journey">
+      <div class="journey-step" id="j0">
+        <span class="step-icon">🧒</span>
+        <span class="step-label">你打字</span>
+        <span class="step-sublabel">变成数字信号</span>
+      </div>
+      <span class="journey-arrow" id="a0">→</span>
+      <div class="journey-step" id="j1">
+        <span class="step-icon">📡</span>
+        <span class="step-label">网络传输</span>
+        <span class="step-sublabel">WiFi → 光纤 → 海底光缆</span>
+      </div>
+      <span class="journey-arrow" id="a1">→</span>
+      <div class="journey-step" id="j2">
+        <span class="step-icon">🏢</span>
+        <span class="step-label">数据中心</span>
+        <span class="step-sublabel">Data Center<br>上万台电脑</span>
+      </div>
+      <span class="journey-arrow" id="a2">→</span>
+      <div class="journey-step" id="j3">
+        <span class="step-icon">🧠</span>
+        <span class="step-label">AI模型思考</span>
+        <span class="step-sublabel">Model<br>在巨大"大脑"里计算</span>
+      </div>
+      <span class="journey-arrow" id="a3">→</span>
+      <div class="journey-step" id="j4">
+        <span class="step-icon">📡</span>
+        <span class="step-label">回答传回</span>
+        <span class="step-sublabel">原路返回你的设备</span>
+      </div>
+      <span class="journey-arrow" id="a4">→</span>
+      <div class="journey-step" id="j5">
+        <span class="step-icon">💬</span>
+        <span class="step-label">屏幕显示</span>
+        <span class="step-sublabel">一个字一个字蹦出来</span>
+      </div>
+    </div>
+    <p style="margin-top: 28px; color: var(--accent); font-size: 1.15rem;" id="journeyNote" class="hidden-text">
+      ⚡ 这一切只用了不到1秒钟！
+    </p>
+  </div>
+
+  <!-- ===== SLIDE 6: 数据中心 ===== -->
+  <div class="slide" data-parent-note="帮孩子建立'AI需要巨大计算资源'的概念。可以说：运行AI的电脑比咱们家的大一万倍。">
+    <h2>🏢 数据中心长什么样？</h2>
+    <div class="big-text">
+      <p>AI 不住在你的手机里</p>
+      <p>它住在一个巨大的 <span class="keyword">数据中心</span> <span class="en">Data Center</span></p>
+      <p style="margin-top: 20px;">想象一个足球场那么大的房间 🏟️</p>
+      <p>里面放着 <span class="keyword">上万台电脑</span> 📦📦📦</p>
+      <p>24小时不停地算啊算 💨</p>
+      <p style="margin-top: 20px;">这些电脑非常热🔥，需要 <span class="keyword">巨大的空调</span> 降温</p>
+      <p>还要用 <span class="keyword">很多很多电</span> ⚡</p>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 7: 动手时间 2 ===== -->
+  <div class="slide" data-parent-note="让孩子体验AI的多种能力。每试一个，问问：你觉得这个难吗？AI花了多久？你觉得它做得好吗？">
+    <div class="hands-on-badge">🖐️ 动手时间！</div>
+    <h2>AI还能做什么？</h2>
+    <p class="subtitle">一起试试这些神奇的事：</p>
+    <div class="cards">
+      <div class="card" onclick="this.classList.toggle('selected')">
+        <span class="card-icon">📝</span>
+        <div class="card-title">写一首诗</div>
+        <div class="card-desc">"帮我写一首关于<br>小猫的诗"</div>
+      </div>
+      <div class="card" onclick="this.classList.toggle('selected')">
+        <span class="card-icon">🧮</span>
+        <div class="card-title">做数学题</div>
+        <div class="card-desc">"12345 + 67890<br>等于多少？"</div>
+      </div>
+      <div class="card" onclick="this.classList.toggle('selected')">
+        <span class="card-icon">🌍</span>
+        <div class="card-title">翻译</div>
+        <div class="card-desc">"用英语说<br>'我喜欢吃冰淇淋'"</div>
+      </div>
+      <div class="card" onclick="this.classList.toggle('selected')">
+        <span class="card-icon">📖</span>
+        <div class="card-title">编故事</div>
+        <div class="card-desc">"编一个兔子<br>去月球的故事"</div>
+      </div>
+    </div>
+    <p style="margin-top: 24px; color: var(--accent3); font-size: 1.05rem;">
+      每试完一个，想一想：AI做得好吗？有没有哪里奇怪？
+    </p>
+    <button class="reset-btn" onclick="this.closest('.slide').querySelectorAll('.card').forEach(c=>c.classList.remove('selected'))">🔄 重新选</button>
+  </div>
+
+  <!-- ===== SLIDE 8: Quiz ===== -->
+  <div class="slide" data-parent-note="这个问答环节帮助巩固理解。不要急着给答案，让孩子自己选，选错了也没关系，重要的是讨论'为什么'。">
+    <h2>🤔 考考你！</h2>
+    <p class="subtitle">AI的回答是怎么来的？</p>
+    <div class="quiz-options" id="quiz1">
+      <div class="quiz-option" onclick="checkQuiz(this, false)">
+        🅰️ 有一个真人躲在手机里打字回答你
+      </div>
+      <div class="quiz-option" onclick="checkQuiz(this, false)">
+        🅱️ AI提前把所有答案都写好了，你问什么它就找出来
+      </div>
+      <div class="quiz-option" onclick="checkQuiz(this, true)">
+        🅲️ AI从学过的知识中，一个字一个字地"算"出最可能的回答
+      </div>
+    </div>
+    <div class="quiz-feedback" id="quizFeedback1"></div>
+    <button class="reset-btn" id="quizResetBtn" style="display:none;" onclick="resetQuiz()">🔄 再答一次</button>
+  </div>
+
+  <!-- ===== SLIDE 9: AI不是万能的 ===== -->
+  <div class="slide" data-parent-note="很重要的批判性思维培养。可以现场试试让AI算一个它容易错的题，或者问它一个关于你家的私人问题，让孩子亲眼看到AI的局限。">
+    <h2>⚠️ 但是！AI也会犯错</h2>
+    <div class="compare">
+      <div class="compare-col" style="border-color: var(--accent4);">
+        <h3 style="color: var(--accent4);">✅ AI擅长</h3>
+        <ul>
+          <li>🔤 写文章、编故事</li>
+          <li>🌐 翻译语言</li>
+          <li>📊 整理信息</li>
+          <li>💡 解释知识</li>
+        </ul>
+      </div>
+      <div class="compare-col" style="border-color: var(--accent2);">
+        <h3 style="color: var(--accent2);">❌ AI不擅长</h3>
+        <ul>
+          <li>🤥 有时会编造"假知识"</li>
+          <li>🧮 复杂数学可能算错</li>
+          <li>❓ 不知道最新的事</li>
+          <li>💭 不能真正"理解"感受</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top: 28px; font-size: 1.2rem; color: var(--accent2);">
+      记住：<span class="keyword">AI是工具，不是老师。要学会自己判断！</span>
+    </p>
+  </div>
+
+  <!-- ===== SLIDE 10: 动手时间 3 ===== -->
+  <div class="slide" data-parent-note="最有趣的环节！让孩子主动去'难倒'AI。这培养批判性思维，也让孩子觉得自己比AI厉害（在某些方面确实如此）。">
+    <div class="hands-on-badge">🖐️ 动手时间！</div>
+    <h2>来！难倒AI！</h2>
+    <div class="try-box">
+      <h3>试试问AI这些问题：</h3>
+      <div style="margin: 16px 0;">
+        <span class="prompt-example">🏠 我家住在哪里？</span>
+        <span class="prompt-example">🍽️ 我今天中午吃了什么？</span>
+        <span class="prompt-example">🎂 我的生日是哪天？</span>
+      </div>
+      <p style="margin-top: 16px; font-size: 1.15rem;">
+        看！AI答不出来！<br>
+        因为它 <span class="keyword" style="font-size: 1.3rem;">不认识你</span>，<br>
+        它只是从书和网上学过很多知识而已。
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 11: 总结 ===== -->
+  <div class="slide" data-parent-note="一起回顾今天学到的。可以让孩子用自己的话说说'AI是什么'。" data-checklist="true">
+    <h2>🌟 今天我们学到了！</h2>
+    <ul class="checklist" id="checklist">
+      <li><span class="check">✓</span> AI 是 <span class="keyword">人工智能</span>，不是魔法</li>
+      <li><span class="check">✓</span> AI 和你一样，都是 <span class="keyword">从经验中学习</span> 的</li>
+      <li><span class="check">✓</span> 你的一句话会穿越网络，到达远方的 <span class="keyword">数据中心</span></li>
+      <li><span class="check">✓</span> AI可以写诗、翻译、编故事……很厉害！</li>
+      <li><span class="check">✓</span> 但AI也会犯错，<span class="keyword">不能盲目相信</span></li>
+    </ul>
+  </div>
+
+  <!-- ===== SLIDE 12: 下期预告 ===== -->
+  <div class="slide" data-parent-note="制造期待感！让孩子好奇下一期的内容。可以问：你觉得AI是怎么读懂你的话的？">
+    <div class="icon-big">🔮</div>
+    <h1>下期预告</h1>
+    <div class="big-text" style="margin-top: 16px;">
+      <p style="font-size: 1.8rem;">AI是怎么"读懂"你的话的？</p>
+      <p style="margin-top: 16px; color: var(--text-dim);">
+        你说"我想吃苹果"<br>
+        AI看到的却是：<span class="keyword">[25, 891, 7, 3042]</span>
+      </p>
+      <p style="margin-top: 24px;">
+        什么是 <span class="keyword">Token</span>？什么是 <span class="keyword">大语言模型</span>？
+      </p>
+      <p style="margin-top: 24px; color: var(--accent2);">
+        下周见！👋
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── State ──
+  let currentSlide = 0;
+  let journeyStep = -1;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+
+  // ── Navigation ──
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    slides[currentSlide].classList.remove('active');
+    currentSlide = n;
+    slides[currentSlide].classList.add('active');
+    updateProgress();
+    updateParentNote();
+    resetSlideState();
+  }
+
+  function next() {
+    // If journey slide, advance journey first
+    if (slides[currentSlide].dataset.journey && journeyStep < 5) {
+      advanceJourney();
+      return;
+    }
+    // If checklist slide, reveal next item
+    const cl = slides[currentSlide].dataset.checklist;
+    if (cl) {
+      const items = document.querySelectorAll('#checklist li:not(.shown)');
+      if (items.length > 0) {
+        items[0].classList.add('shown');
+        return;
+      }
+    }
+    goTo(currentSlide + 1);
+  }
+
+  function prev() {
+    goTo(currentSlide - 1);
+  }
+
+  // ── Progress ──
+  function updateProgress() {
+    const pct = ((currentSlide) / (total - 1)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('slideNum').textContent = (currentSlide + 1) + ' / ' + total;
+  }
+
+  // ── Parent notes ──
+  function updateParentNote() {
+    const note = slides[currentSlide].dataset.parentNote;
+    const el = document.getElementById('parentNote');
+    const txt = document.getElementById('parentNoteText');
+    if (note) {
+      txt.textContent = note;
+      el.classList.remove('hidden');
+    } else {
+      el.classList.add('hidden');
+    }
+  }
+
+  // ── Journey animation ──
+  function advanceJourney() {
+    journeyStep++;
+    if (journeyStep <= 5) {
+      document.getElementById('j' + journeyStep).classList.add('visible');
+      if (journeyStep > 0) {
+        document.getElementById('a' + (journeyStep - 1)).classList.add('visible');
+      }
+    }
+    if (journeyStep >= 5) {
+      setTimeout(() => {
+        document.getElementById('journeyNote').classList.remove('hidden-text');
+        document.getElementById('journeyNote').style.opacity = '1';
+      }, 600);
+    }
+  }
+
+  function resetSlideState() {
+    // Reset journey
+    if (slides[currentSlide].dataset.journey) {
+      journeyStep = -1;
+      for (let i = 0; i <= 5; i++) {
+        document.getElementById('j' + i).classList.remove('visible');
+        if (i < 5) document.getElementById('a' + i).classList.remove('visible');
+      }
+      document.getElementById('journeyNote').classList.add('hidden-text');
+      document.getElementById('journeyNote').style.opacity = '0';
+    }
+  }
+
+  // ── Quiz ──
+  function checkQuiz(el, correct) {
+    const options = el.parentElement.querySelectorAll('.quiz-option');
+    options.forEach(o => {
+      o.style.pointerEvents = 'none';
+      if (o === el) {
+        o.classList.add(correct ? 'correct' : 'wrong');
+      }
+    });
+    // Also highlight correct answer
+    if (!correct) {
+      options[2].classList.add('correct');
+    }
+    const fb = document.getElementById('quizFeedback1');
+    if (correct) {
+      fb.innerHTML = '🎉 <span style="color: var(--accent4)">答对了！</span><br>AI确实是一个字一个字"算"出来的，不是提前写好的！';
+    } else {
+      fb.innerHTML = '😄 <span style="color: var(--accent2)">差一点！</span><br>正确答案是 🅲️ —— AI从学过的知识中，一个字一个字地计算出回答。<br>没有真人躲在里面哦！';
+    }
+    document.getElementById('quizResetBtn').style.display = 'inline-flex';
+  }
+
+  function resetQuiz() {
+    const options = document.querySelectorAll('#quiz1 .quiz-option');
+    options.forEach(o => {
+      o.style.pointerEvents = 'auto';
+      o.classList.remove('correct', 'wrong');
+    });
+    document.getElementById('quizFeedback1').innerHTML = '';
+    document.getElementById('quizResetBtn').style.display = 'none';
+  }
+
+  // ── Keyboard ──
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    if (e.key === 'p' || e.key === 'P') {
+      document.getElementById('parentNote').classList.toggle('hidden');
+    }
+  });
+
+  // ── Click navigation ──
+  document.addEventListener('click', e => {
+    // Don't navigate if clicking interactive elements
+    if (e.target.closest('.card, .quiz-option, .prompt-example, .parent-note, .reset-btn')) return;
+    const x = e.clientX;
+    if (x > window.innerWidth * 0.65) next();
+    else if (x < window.innerWidth * 0.35) prev();
+  });
+
+  // ── Touch support ──
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(diff) > 50) {
+      if (diff < 0) next();
+      else prev();
+    }
+  });
+
+  // ── Hidden text helper ──
+  document.querySelectorAll('.hidden-text').forEach(el => { el.style.opacity = '0'; });
+
+  // ── Init ──
+  goTo(0);
+</script>
+
+
+<!-- WeChat Detection Overlay -->
+<div id="wxOverlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.92);
+  color:#f5f5f7;font-family:-apple-system,'PingFang SC',sans-serif;
+  flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
+  <div style="font-size:64px;margin-bottom:24px;">🔥</div>
+  <div style="font-size:24px;font-weight:700;margin-bottom:16px;">AI篝火 · 互动课件</div>
+  <div style="font-size:16px;color:#a1a1a6;line-height:1.8;margin-bottom:32px;max-width:320px;">
+    微信内无法直接打开互动网页<br>请点击右上角 <b style="color:#fff;">⋯</b> 菜单<br>选择 <b style="color:#2997ff;">「用浏览器打开」</b>
+  </div>
+  <div style="width:240px;padding:20px;border-radius:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);">
+    <div style="font-size:13px;color:#6e6e73;margin-bottom:12px;">操作步骤</div>
+    <div style="font-size:15px;color:#c4c4cc;line-height:2;">
+      ① 点击右上角 <b style="color:#fff">⋯</b><br>
+      ② 选择「用浏览器打开」<br>
+      ③ 即可正常浏览互动内容
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var ua=navigator.userAgent.toLowerCase();
+  if(ua.indexOf('micromessenger')!==-1){
+    document.getElementById('wxOverlay').style.display='flex';
+  }
+})();
+</script>
+
+<!-- Watermark -->
+<div style="position:fixed;bottom:62px;left:16px;z-index:90;display:flex;align-items:center;gap:8px;
+  opacity:0.35;pointer-events:none;transition:opacity 0.3s;">
+  <img src="data:image/png;base64,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" 
+    style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);" alt="">
+  <span style="font-size:10px;color:#fff;font-family:-apple-system,'PingFang SC',sans-serif;
+    letter-spacing:0.03em;text-shadow:0 1px 3px rgba(0,0,0,0.5);">Fred Zhang</span>
+</div>
+
+</body>
+</html>
