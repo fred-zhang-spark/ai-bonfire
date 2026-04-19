@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍰 甜品城堡打字乐园</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* 登录界面 */
+    .login-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #FFE4EC 0%, #FFF0F5 50%, #FFB6C1 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+
+    .login-title {
+      font-size: 2.5rem;
+      color: #FF69B4;
+      text-shadow: 3px 3px 0 white;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 30px;
+      box-shadow: 0 10px 40px rgba(255,105,180,0.3);
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 15px 20px;
+      font-size: 1.2rem;
+      border: 3px solid #FFB6C1;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-family: inherit;
+    }
+
+    .login-box input:focus {
+      outline: none;
+      border-color: #FF69B4;
+    }
+
+    .login-box h4 {
+      color: #FF69B4;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    .emoji-picker {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      background: #FFF0F5;
+      border-radius: 15px;
+    }
+
+    .emoji-option {
+      font-size: 1.8rem;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .emoji-option:hover {
+      background: #FFB6C1;
+      transform: scale(1.15);
+    }
+
+    .emoji-option.selected {
+      background: #FF69B4;
+      box-shadow: 0 0 10px rgba(255,105,180,0.5);
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, #FF69B4 0%, #FFB6C1 100%);
+      color: white;
+      border: none;
+      padding: 15px 50px;
+      font-size: 1.3rem;
+      border-radius: 30px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(255,105,180,0.4);
+    }
+
+    .login-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-msg {
+      color: #FF4444;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    /* 主世界地图 */
+    .world-map {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 20%, #98FB98 50%, #DEB887 75%, #D2691E 100%);
+    }
+
+    /* 兑换处 */
+    .shop-area {
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 10;
+    }
+
+    .shop-btn {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      padding: 12px 25px;
+      border-radius: 25px;
+      border: 4px solid #FF69B4;
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: inherit;
+      box-shadow: 0 5px 20px rgba(255,165,0,0.4);
+      transition: all 0.3s;
+    }
+
+    .shop-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .shop-house {
+      font-size: 3.5rem;
+      margin-top: -15px;
+      animation: house-bounce 2s ease-in-out infinite;
+    }
+
+    .shop-tip {
+      font-size: 0.75rem;
+      color: #8B4513;
+      margin-top: 5px;
+    }
+
+    @keyframes house-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    /* 通往草地 */
+    .path-to-grass {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 70px;
+      background: linear-gradient(180deg, #8B4513 0%, #228B22 100%);
+      clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+    }
+
+    /* 草地（第二关） */
+    .grassland {
+      position: absolute;
+      top: 26%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 75%;
+      max-width: 500px;
+      height: 22%;
+      background: linear-gradient(180deg, #90EE90 0%, #228B22 100%);
+      border-radius: 50% 50% 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .grassland:hover {
+      transform: translateX(-50%) scale(1.02);
+    }
+
+    .grassland.locked {
+      filter: brightness(0.7);
+      cursor: not-allowed;
+    }
+
+    .grassland-title {
+      font-size: 1.3rem;
+      color: #006400;
+      text-shadow: 2px 2px 0 white;
+      margin-bottom: 8px;
+    }
+
+    .level-info {
+      background: rgba(255,255,255,0.9);
+      padding: 6px 15px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      color: #333;
+      border: 2px solid #228B22;
+    }
+
+    .grassland-decor {
+      position: absolute;
+      bottom: 10%;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      font-size: 1.3rem;
+    }
+
+    /* 通往村庄 */
+    .path-to-village {
+      position: absolute;
+      top: 46%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 70px;
+      background: linear-gradient(180deg, #8B4513 0%, #D2691E 100%);
+      clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+    }
+
+    /* 村庄（第一关） */
+    .village {
+      position: absolute;
+      bottom: 2%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 75%;
+      max-width: 500px;
+      height: 18%;
+      background: linear-gradient(180deg, #DEB887 0%, #F4A460 100%);
+      border-radius: 30px 30px 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .village:hover {
+      transform: translateX(-50%) scale(1.02);
+    }
+
+    .village-title {
+      font-size: 1.3rem;
+      color: #8B4513;
+      text-shadow: 2px 2px 0 white;
+      margin-bottom: 8px;
+    }
+
+    .village-houses {
+      display: flex;
+      gap: 15px;
+      font-size: 1.8rem;
+    }
+
+    /* 云朵 */
+    .cloud {
+      position: absolute;
+      background: white;
+      border-radius: 50px;
+      opacity: 0.9;
+    }
+    .cloud::before, .cloud::after {
+      content: '';
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+    }
+    .cloud-1 { width: 100px; height: 40px; top: 8%; left: 10%; animation: float 6s ease-in-out infinite; }
+    .cloud-1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+    .cloud-1::after { width: 35px; height: 35px; top: -15px; left: 50px; }
+    .cloud-2 { width: 80px; height: 32px; top: 12%; right: 15%; animation: float 8s ease-in-out infinite reverse; }
+    .cloud-2::before { width: 40px; height: 40px; top: -20px; left: 10px; }
+    .cloud-2::after { width: 30px; height: 30px; top: -12px; left: 40px; }
+    .cloud-3 { width: 70px; height: 28px; top: 5%; right: 30%; animation: float 7s ease-in-out infinite; }
+    .cloud-3::before { width: 35px; height: 35px; top: -18px; left: 8px; }
+    .cloud-3::after { width: 28px; height: 28px; top: -12px; left: 35px; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* 玩家信息 */
+    .player-info {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      padding: 8px 15px;
+      border-radius: 18px;
+      border: 3px solid #FF69B4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 100;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .player-emoji {
+      font-size: 1.8rem;
+    }
+
+    .player-name {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #8B4513;
+    }
+
+    .player-coins {
+      font-size: 1rem;
+      color: #8B4513;
+    }
+
+    /* 切换玩家按钮 */
+    .switch-btn {
+      position: fixed;
+      top: 15px;
+      right: 80px;
+      background: white;
+      border: 3px solid #FF69B4;
+      border-radius: 18px;
+      padding: 8px 15px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: inherit;
+      z-index: 100;
+      transition: all 0.3s;
+    }
+
+    .switch-btn:hover {
+      background: #FFF0F5;
+      transform: scale(1.05);
+    }
+
+    /* 返回按钮 */
+    .back-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: white;
+      border: 3px solid #FF69B4;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 兑换商店 */
+    .shop-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+
+    .shop-modal.show {
+      display: flex;
+    }
+
+    .shop-content {
+      background: linear-gradient(135deg, #FFF8DC 0%, #FFE4B5 100%);
+      padding: 25px;
+      border-radius: 25px;
+      max-width: 450px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 5px solid #FFD700;
+      box-shadow: 0 0 50px rgba(255,215,0,0.5);
+    }
+
+    .shop-header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .shop-header h2 {
+      color: #8B4513;
+      font-size: 1.5rem;
+    }
+
+    .shop-balance {
+      background: #FFD700;
+      padding: 6px 15px;
+      border-radius: 12px;
+      margin-top: 8px;
+      display: inline-block;
+      font-weight: bold;
+    }
+
+    .shop-category {
+      margin-bottom: 20px;
+    }
+
+    .shop-category h3 {
+      color: #FF69B4;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+    }
+
+    .shop-emoji {
+      font-size: 1.6rem;
+      padding: 6px;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .shop-emoji:hover {
+      background: #FFF0F5;
+      border-color: #FF69B4;
+      transform: scale(1.1);
+    }
+
+    .shop-emoji.owned {
+      background: #90EE90;
+      border-color: #228B22;
+    }
+
+    .close-shop {
+      background: #FF69B4;
+      color: white;
+      border: none;
+      padding: 10px 30px;
+      font-size: 1rem;
+      border-radius: 18px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 10px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .close-shop:hover {
+      background: #FF1493;
+    }
+
+    /* 游戏容器 */
+    .game-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bg-village {
+      background: linear-gradient(180deg, #87CEEB 0%, #F0E68C 30%, #DEB887 60%, #D2691E 100%);
+    }
+
+    .bg-grassland {
+      background: linear-gradient(180deg, #87CEEB 0%, #98FB98 50%, #228B22 100%);
+    }
+
+    .game-cloud {
+      position: absolute;
+      background: white;
+      border-radius: 50px;
+      opacity: 0.8;
+    }
+    .game-cloud::before, .game-cloud::after {
+      content: '';
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      padding: 15px 20px;
+      z-index: 10;
+    }
+
+    .avatar-mini {
+      width: 45px;
+      height: 45px;
+      background: white;
+      border-radius: 50%;
+      border: 3px solid #FF69B4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .money-display {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      padding: 8px 18px;
+      border-radius: 18px;
+      border: 3px solid #FF69B4;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #8B4513;
+      margin-left: 15px;
+    }
+
+    .hearts-section {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .heart {
+      font-size: 1.8rem;
+      transition: all 0.3s ease;
+    }
+
+    .heart.lost {
+      filter: grayscale(100%);
+      opacity: 0.3;
+    }
+
+    .heart.breaking {
+      animation: heart-break 0.5s ease-out;
+    }
+
+    @keyframes heart-break {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.3) rotate(-10deg); }
+      50% { transform: scale(0.8) rotate(10deg); }
+      100% { transform: scale(0.8); filter: grayscale(100%); }
+    }
+
+    .level-badge {
+      position: absolute;
+      top: 55px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.9);
+      padding: 4px 15px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      color: #FF69B4;
+      font-weight: bold;
+      border: 2px solid #FFB6C1;
+      z-index: 10;
+    }
+
+    .game-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 15px;
+    }
+
+    .typing-display {
+      background: rgba(255,255,255,0.95);
+      border-radius: 18px;
+      padding: 12px 18px;
+      border: 4px solid #FF69B4;
+      box-shadow: 0 10px 30px rgba(255,105,180,0.3);
+      margin-bottom: 8px;
+    }
+
+    .typing-line {
+      display: flex;
+      align-items: center;
+      padding: 6px 0;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .typing-line:not(:last-child) {
+      border-bottom: 2px dashed #FFE4EC;
+      margin-bottom: 6px;
+    }
+
+    .line-label {
+      font-size: 0.8rem;
+      color: #FF69B4;
+      margin-right: 6px;
+      font-weight: bold;
+    }
+
+    .next-label {
+      color: #888;
+      font-style: italic;
+    }
+
+    .letter {
+      font-size: 1.5rem;
+      padding: 3px 5px;
+      border-radius: 5px;
+      transition: all 0.15s ease;
+      font-weight: bold;
+    }
+
+    .letter.current {
+      background: #FF69B4;
+      color: white;
+      transform: scale(1.2);
+      box-shadow: 0 3px 10px rgba(255,105,180,0.5);
+    }
+
+    .letter.completed {
+      color: #32CD32;
+    }
+
+    .letter.error {
+      background: #FF4444;
+      color: white;
+      animation: shake 0.3s ease;
+    }
+
+    .letter.space {
+      display: inline-block;
+      width: 25px;
+      height: 2px;
+      background: #FF69B4;
+      vertical-align: middle;
+      margin: 0 4px;
+    }
+
+    .letter.space.current {
+      height: 4px;
+      background: #FF1493;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    .word {
+      font-size: 1.4rem;
+      padding: 3px 8px;
+      margin: 0 2px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+      font-weight: bold;
+    }
+
+    .word.current {
+      background: linear-gradient(135deg, #FF69B4 0%, #FFB6C1 100%);
+      color: white;
+    }
+
+    .word.completed {
+      color: #32CD32;
+    }
+
+    .sentence {
+      font-size: 1.2rem;
+      padding: 5px 10px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      font-weight: bold;
+    }
+
+    .sentence.current {
+      background: linear-gradient(135deg, #FF69B4 0%, #FFB6C1 100%);
+      color: white;
+    }
+
+    .sentence.completed {
+      background: linear-gradient(135deg, #90EE90 0%, #98FB98 100%);
+      color: #006400;
+    }
+
+    .reward-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #FFD700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      animation: reward-fly 1s ease-out forwards;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    @keyframes reward-fly {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      30% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+      100% { transform: translate(-50%, -150%) scale(1); opacity: 0; }
+    }
+
+    /* 弹窗 */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 35px;
+      border-radius: 25px;
+      text-align: center;
+      max-width: 380px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: modal-pop 0.3s ease-out;
+    }
+
+    @keyframes modal-pop {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-title {
+      font-size: 1.8rem;
+      color: #FF69B4;
+      margin-bottom: 15px;
+    }
+
+    .modal-text {
+      font-size: 1.1rem;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .modal-btn {
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    .modal-btn-buy {
+      background: linear-gradient(135deg, #FF69B4 0%, #FFB6C1 100%);
+      color: white;
+    }
+
+    .modal-btn-buy:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(255,105,180,0.4);
+    }
+
+    .modal-btn-buy:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .modal-btn-close {
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .game-over-content {
+      background: linear-gradient(135deg, #FFF0F5 0%, #FFE4EC 100%);
+    }
+
+    .final-score {
+      font-size: 3.5rem;
+      color: #FF69B4;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    .unlock-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2500;
+    }
+
+    .unlock-modal.show {
+      display: flex;
+    }
+
+    .unlock-content {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      padding: 45px;
+      border-radius: 25px;
+      text-align: center;
+      animation: unlock-bounce 0.5s ease-out;
+    }
+
+    @keyframes unlock-bounce {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .unlock-content h2 {
+      font-size: 2.2rem;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      margin-bottom: 15px;
+    }
+
+    .unlock-content p {
+      font-size: 1.3rem;
+      color: white;
+    }
+
+    .sound-toggle {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      background: white;
+      border: 3px solid #FF69B4;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sound-toggle.muted {
+      opacity: 0.5;
+    }
+
+    /* 金币进度条 */
+    .progress-section {
+      position: absolute;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 350px;
+      z-index: 10;
+    }
+
+    .progress-bar-container {
+      background: rgba(255,255,255,0.9);
+      border-radius: 15px;
+      padding: 10px 15px;
+      border: 2px solid #FFB6C1;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #FF69B4;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar {
+      height: 18px;
+      background: #FFE4EC;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-text {
+      font-size: 0.75rem;
+      color: white;
+      font-weight: bold;
+    }
+
+    /* WPM 速度显示 */
+    .wpm-display {
+      position: absolute;
+      top: 90px;
+      right: 20px;
+      background: linear-gradient(135deg, #9370DB 0%, #8A2BE2 100%);
+      padding: 8px 15px;
+      border-radius: 15px;
+      border: 2px solid white;
+      z-index: 10;
+    }
+
+    .wpm-label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .wpm-value {
+      font-size: 1.5rem;
+      color: white;
+      font-weight: bold;
+    }
+
+    .wpm-unit {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* 背景装饰 */
+    .bg-decorations {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .decor-item {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.6;
+      animation: float-decor 4s ease-in-out infinite;
+    }
+
+    @keyframes float-decor {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(5deg); }
+    }
+
+    /* 表情弹出 */
+    .emoji-popup {
+      position: fixed;
+      font-size: 2.5rem;
+      pointer-events: none;
+      z-index: 200;
+      animation: emoji-pop 0.8s ease-out forwards;
+    }
+
+    @keyframes emoji-pop {
+      0% { transform: scale(0) translateY(0); opacity: 0; }
+      20% { transform: scale(1.3) translateY(-10px); opacity: 1; }
+      100% { transform: scale(1) translateY(-80px); opacity: 0; }
+    }
+
+    /* 中间装饰区域 */
+    .center-decor {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 5;
+    }
+
+    .decor-text {
+      font-size: 1rem;
+      color: rgba(255,105,180,0.5);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 登录界面 -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-title">🍰 甜品城堡打字乐园 🍰</div>
+    <div class="login-box">
+      <input type="text" id="playerNameInput" placeholder="输入你的名字" maxlength="10">
+      <h4>选择一个头像：</h4>
+      <div class="emoji-picker" id="emojiPicker"></div>
+      <button class="login-btn" id="loginBtn" onclick="startGame()" disabled>🎮 开始冒险！</button>
+    </div>
+  </div>
+
+  <!-- 主世界地图 -->
+  <div class="world-map" id="worldMap" style="display: none;">
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+    
+    <div class="player-info" id="playerInfo"></div>
+    <button class="switch-btn" onclick="switchPlayer()">🚪 切换玩家</button>
+    <button class="back-btn" onclick="showWorldMap()">🏠</button>
+    
+    <div class="shop-area">
+      <button class="shop-btn" onclick="openShop()">🛒 兑换处 (50金币)</button>
+      <div class="shop-house">🏪</div>
+      <div class="shop-tip">💡 双击已购表情可替换头像</div>
+    </div>
+    
+    <div class="path-to-grass"></div>
+    
+    <div class="grassland" id="grassland" onclick="enterLevel(2)">
+      <div class="grassland-title">🌿 大草原 (第二关)</div>
+      <div class="level-info" id="grasslandInfo">需要 400 金币解锁</div>
+      <div class="grassland-decor">
+        <span>🌻</span><span>🌷</span><span>🦋</span><span>🌻</span>
+      </div>
+    </div>
+    
+    <div class="path-to-village"></div>
+    
+    <div class="village" onclick="enterLevel(1)">
+      <div class="village-title">🏘️ 村庄 (第一关)</div>
+      <div class="level-info">字 + 词</div>
+      <div class="village-houses">
+        <span>🏠</span><span>🏡</span><span>🏠</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 兑换商店 -->
+  <div class="shop-modal" id="shopModal">
+    <div class="shop-content">
+      <div class="shop-header">
+        <h2>🛒 表情兑换处 🛒</h2>
+        <div class="shop-balance">💰 金币：<span id="shopBalance">0</span></div>
+      </div>
+      <div class="shop-category">
+        <h3>🐾 动物类</h3>
+        <div class="emoji-grid" id="animalEmojis"></div>
+      </div>
+      <div class="shop-category">
+        <h3>😄 经典表情</h3>
+        <div class="emoji-grid" id="faceEmojis"></div>
+      </div>
+      <button class="close-shop" onclick="closeShop()">关闭</button>
+    </div>
+  </div>
+
+  <!-- 游戏主界面 -->
+  <div class="game-container" id="gameContainer" style="display: none;">
+    <button class="back-btn" onclick="backToMap()">🏠</button>
+    
+    <!-- 背景装饰 -->
+    <div class="bg-decorations" id="bgDecorations"></div>
+    
+    <!-- 云朵 -->
+    <div class="game-cloud cloud-1" style="width:80px;height:30px;top:8%;left:10%;"></div>
+    <div class="game-cloud cloud-2" style="width:60px;height:24px;top:15%;right:15%;"></div>
+    
+    <div class="top-bar">
+      <div class="avatar-mini" id="gameAvatar"></div>
+      <div class="money-display">💰 <span id="gameMoney">0</span></div>
+    </div>
+    
+    <div class="hearts-section" id="heartsSection">
+      <span class="heart" id="heart1">❤️</span>
+      <span class="heart" id="heart2">❤️</span>
+      <span class="heart" id="heart3">❤️</span>
+    </div>
+    
+    <div class="level-badge" id="levelBadge">第一关 - 字词</div>
+    
+    <!-- WPM 速度 -->
+    <div class="wpm-display" id="wpmDisplay">
+      <div class="wpm-label">打字速度</div>
+      <div><span class="wpm-value" id="wpmValue">0</span> <span class="wpm-unit">字/分</span></div>
+    </div>
+    
+    <!-- 金币进度条 -->
+    <div class="progress-section">
+      <div class="progress-bar-container">
+        <div class="progress-label">
+          <span>解锁表情商店</span>
+          <span id="emojiCount">可兑换 0 个表情</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%;">
+            <span class="progress-text" id="progressText"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 中间装饰区域 -->
+    <div class="center-decor" id="centerDecor"></div>
+    
+    <div class="game-area">
+      <div class="typing-display">
+        <div class="typing-line" id="line1">
+          <span class="line-label">当前：</span>
+        </div>
+        <div class="typing-line" id="line2">
+          <span class="line-label next-label">下一个：</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 购买心弹窗 -->
+  <div class="modal" id="buyHeartModal">
+    <div class="modal-content">
+      <div class="modal-title">❤️ 心心用完啦！</div>
+      <div class="modal-text">要不要花 <strong>50元</strong> 买一颗心？</div>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-buy" id="buyHeartBtn" onclick="buyHeart()">💰 买！</button>
+        <button class="modal-btn modal-btn-close" onclick="endGame()">😢 算了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 游戏结束弹窗 -->
+  <div class="modal" id="gameOverModal">
+    <div class="modal-content game-over-content">
+      <div class="modal-title">🏆 游戏结束！</div>
+      <div class="final-score" id="finalScore">0</div>
+      <div class="modal-text">你赚了好多钱呢！</div>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-buy" onclick="returnToMap()">🏠 返回地图</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 解锁提示 -->
+  <div class="unlock-modal" id="unlockModal">
+    <div class="unlock-content">
+      <h2 id="unlockTitle">🎉 解锁成功！</h2>
+      <p id="unlockText">你已经解锁新关卡！</p>
+    </div>
+  </div>
+
+  <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" style="display: none;">🔊</button>
+
+  <script>
+    // ==================== 数据 ====================
+    const ANIMAL_EMOJIS = [
+      '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯',
+      '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆',
+      '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋',
+      '🐌', '🐞', '🐜', '🦟', '🦗', '🐢', '🐍', '🦎', '🦖', '🦕',
+      '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳',
+      '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🐘', '🦛', '🦏',
+      '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏',
+      '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🐈', '🐓', '🦃', '🦚'
+    ];
+
+    const FACE_EMOJIS = [
+      '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😊',
+      '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '🥲', '😋',
+      '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐',
+      '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔',
+      '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵',
+      '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '🥸', '😎', '🤓', '🧐',
+      '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺', '😦',
+      '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞'
+    ];
+
+    const SENTENCES = [
+      'I love you', 'Good job', 'You are great', 'Nice work', 'Well done',
+      'Keep going', 'Super star', 'Happy day', 'Sweet dreams', 'Fun time',
+      'Cool cat', 'Big bear', 'Cute rabbit', 'Pink cake', 'Sweet candy',
+      'Nice job', 'Good girl', 'Good boy', 'You can do it', 'Try again',
+      'No problem', 'I agree', 'Good idea', 'Great work', 'Thank you',
+      'Welcome', 'Good luck', 'Come on', 'Wow amazing', 'So cool',
+      'I am happy', 'She is cute', 'He is smart', 'We are friends', 'It is fun',
+      'I like it', 'You are nice', 'This is good', 'That is cool', 'Nice one',
+      'Good morning', 'Good night', 'See you soon', 'Have fun', 'Be careful',
+      'Do your best', 'Never give up', 'Stay positive', 'Think positive', 'Act now'
+    ];
+
+    const WORDS = [
+      'apple', 'banana', 'orange', 'grape', 'cherry', 'lemon', 'mango', 'peach',
+      'happy', 'sunny', 'cloud', 'rainbow', 'flower', 'garden', 'forest',
+      'cat', 'dog', 'bird', 'fish', 'duck', 'bear', 'lion', 'tiger', 'horse',
+      'cake', 'candy', 'cookie', 'donut', 'pie', 'bread', 'pizza', 'sushi',
+      'star', 'moon', 'sun', 'tree', 'grass', 'river', 'ocean', 'mountain',
+      'run', 'jump', 'play', 'sing', 'dance', 'swim', 'read', 'write',
+      'red', 'blue', 'green', 'yellow', 'pink', 'purple', 'black', 'white',
+      'book', 'pen', 'desk', 'chair', 'window', 'door', 'house', 'school',
+      'friend', 'family', 'mother', 'father', 'sister', 'brother', 'baby',
+      'car', 'bus', 'train', 'boat', 'plane', 'bike', 'ship', 'taxi',
+      'ball', 'game', 'toy', 'gift', 'song', 'music', 'art', 'food',
+      'hot', 'cold', 'warm', 'cool', 'fast', 'slow', 'big', 'small'
+    ];
+
+    const LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
+
+    // 表情弹出数组
+    const POSITIVE_EMOJIS = ['🔥', '✨', '🎉', '💯', '👍', '🌟', '💪', '🎊', '✅', '👏', '🏆', '🍀', '🌈', '💫', '🎈', '⭐', '💎', '🎁', '🍰', '🎂'];
+    const NEGATIVE_EMOJIS = ['😢', '😔', '💔', '😞', '😕', '🙁', '😟', '😣', '😖', '😩', '🥺', '😰', '💀', '👎', '😤', '🙄'];
+
+    // ==================== 游戏状态 ====================
+    let gameState = {
+      playerName: '',
+      playerEmoji: '🐱',
+      coins: 0,
+      ownedEmojis: ['🐱'],
+      unlockedLevels: [1],
+      currentLevel: 1,
+      hearts: 3,
+      currentIndex: 0,
+      lines: [[], []],
+      nextLine: null,
+      soundEnabled: true,
+      isPlaying: false,
+      // WPM 追踪
+      keyCount: 0,
+      startTime: null
+    };
+
+    // ==================== 音效 ====================
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (!gameState.soundEnabled) return;
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      
+      if (type === 'correct') {
+        osc.frequency.setValueAtTime(523.25, audioContext.currentTime);
+        osc.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        osc.start(); osc.stop(audioContext.currentTime + 0.2);
+      } else if (type === 'error') {
+        osc.frequency.setValueAtTime(200, audioContext.currentTime);
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        osc.start(); osc.stop(audioContext.currentTime + 0.3);
+      } else if (type === 'complete') {
+        [523.25, 659.25, 783.99].forEach((f, i) => {
+          osc.frequency.setValueAtTime(f, audioContext.currentTime + i * 0.1);
+        });
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+        osc.start(); osc.stop(audioContext.currentTime + 0.4);
+      } else if (type === 'shop') {
+        [392, 523.25, 659.25, 783.99].forEach((f, i) => {
+          osc.frequency.setValueAtTime(f, audioContext.currentTime + i * 0.1);
+        });
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        osc.start(); osc.stop(audioContext.currentTime + 0.5);
+      } else if (type === 'unlock') {
+        [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+          osc.frequency.setValueAtTime(f, audioContext.currentTime + i * 0.15);
+        });
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+        osc.start(); osc.stop(audioContext.currentTime + 0.8);
+      }
+    }
+
+    function toggleSound() {
+      gameState.soundEnabled = !gameState.soundEnabled;
+      const btn = document.getElementById('soundToggle');
+      btn.textContent = gameState.soundEnabled ? '🔊' : '🔇';
+      btn.classList.toggle('muted', !gameState.soundEnabled);
+    }
+
+    // ==================== 登录 ====================
+    function initLoginScreen() {
+      const picker = document.getElementById('emojiPicker');
+      const emojis = [...ANIMAL_EMOJIS.slice(0, 42), ...FACE_EMOJIS.slice(0, 10)];
+      picker.innerHTML = emojis.map(e => 
+        `<div class="emoji-option" onclick="selectEmoji('${e}')">${e}</div>`
+      ).join('');
+    }
+
+    let selectedEmoji = null;
+
+    function selectEmoji(emoji) {
+      selectedEmoji = emoji;
+      document.querySelectorAll('.emoji-option').forEach(el => el.classList.remove('selected'));
+      event.target.classList.add('selected');
+      document.getElementById('loginBtn').disabled = false;
+    }
+
+    function startGame() {
+      const name = document.getElementById('playerNameInput').value.trim();
+      if (!name) {
+        alert('请输入名字！');
+        return;
+      }
+      if (!selectedEmoji) {
+        alert('请选择一个头像！');
+        return;
+      }
+      
+      gameState.playerName = name;
+      gameState.playerEmoji = selectedEmoji;
+      gameState.coins = 0;
+      gameState.ownedEmojis = [selectedEmoji];
+      gameState.unlockedLevels = [1];
+      
+      showWorldMap();
+    }
+
+    function switchPlayer() {
+      showLoginScreen();
+    }
+
+    function showLoginScreen() {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('worldMap').style.display = 'none';
+      document.getElementById('gameContainer').style.display = 'none';
+      document.getElementById('playerNameInput').value = '';
+      document.getElementById('loginBtn').disabled = true;
+      document.querySelectorAll('.emoji-option').forEach(el => el.classList.remove('selected'));
+      selectedEmoji = null;
+    }
+
+    // ==================== 世界地图 ====================
+    function showWorldMap() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('gameContainer').style.display = 'none';
+      document.getElementById('worldMap').style.display = 'block';
+      
+      document.getElementById('playerInfo').innerHTML = `
+        <span class="player-emoji">${gameState.playerEmoji}</span>
+        <span class="player-name">${gameState.playerName}</span>
+        <span class="player-coins">💰 ${gameState.coins}</span>
+      `;
+      
+      updateLevelStatus();
+    }
+
+    function updateLevelStatus() {
+      const grassland = document.getElementById('grassland');
+      const info = document.getElementById('grasslandInfo');
+      
+      if (gameState.unlockedLevels.includes(2)) {
+        info.textContent = '✅ 已解锁';
+        grassland.classList.remove('locked');
+      } else {
+        info.textContent = `需 400 金币 (当前: ${gameState.coins})`;
+        grassland.classList.add('locked');
+      }
+    }
+
+    function enterLevel(level) {
+      if (!gameState.unlockedLevels.includes(level)) {
+        if (level === 2 && gameState.coins >= 400) {
+          gameState.unlockedLevels.push(2);
+          playSound('unlock');
+          showUnlockModal('🎉 解锁成功！', '你已经解锁【大草原】第二关！');
+          return;
+        }
+        alert('这个关卡还没有解锁！需要达到 400 金币。');
+        return;
+      }
+      
+      gameState.currentLevel = level;
+      startLevel();
+    }
+
+    function showUnlockModal(title, text) {
+      document.getElementById('unlockTitle').textContent = title;
+      document.getElementById('unlockText').textContent = text;
+      document.getElementById('unlockModal').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('unlockModal').classList.remove('show');
+        showWorldMap();
+      }, 2000);
+    }
+
+    // ==================== 商店 ====================
+    function openShop() {
+      document.getElementById('shopBalance').textContent = gameState.coins;
+      
+      document.getElementById('animalEmojis').innerHTML = ANIMAL_EMOJIS.map(e => {
+        const owned = gameState.ownedEmojis.includes(e);
+        return `<div class="shop-emoji ${owned ? 'owned' : ''}" onclick="buyEmoji('${e}')">${e}</div>`;
+      }).join('');
+      
+      document.getElementById('faceEmojis').innerHTML = FACE_EMOJIS.map(e => {
+        const owned = gameState.ownedEmojis.includes(e);
+        return `<div class="shop-emoji ${owned ? 'owned' : ''}" onclick="buyEmoji('${e}')">${e}</div>`;
+      }).join('');
+      
+      document.getElementById('shopModal').classList.add('show');
+    }
+
+    function closeShop() {
+      document.getElementById('shopModal').classList.remove('show');
+      updateLevelStatus();
+      document.getElementById('playerInfo').querySelector('.player-coins').textContent = `💰 ${gameState.coins}`;
+    }
+
+    function buyEmoji(emoji) {
+      if (gameState.ownedEmojis.includes(emoji)) {
+        // 已拥有，更换头像
+        gameState.playerEmoji = emoji;
+        playSound('shop');
+        document.getElementById('playerInfo').querySelector('.player-emoji').textContent = emoji;
+        return;
+      }
+      
+      if (gameState.coins >= 50) {
+        gameState.coins -= 50;
+        gameState.ownedEmojis.push(emoji);
+        gameState.playerEmoji = emoji;
+        playSound('shop');
+        document.getElementById('shopBalance').textContent = gameState.coins;
+        document.getElementById('playerInfo').querySelector('.player-coins').textContent = `💰 ${gameState.coins}`;
+        
+        // 更新显示
+        event.target.classList.add('owned');
+        document.getElementById('playerInfo').querySelector('.player-emoji').textContent = emoji;
+      } else {
+        alert('金币不够！需要 50 金币兑换。');
+      }
+    }
+
+    // ==================== 游戏逻辑 ====================
+    function startLevel() {
+      document.getElementById('worldMap').style.display = 'none';
+      document.getElementById('gameContainer').style.display = 'flex';
+      document.getElementById('soundToggle').style.display = 'flex';
+      
+      const container = document.getElementById('gameContainer');
+      container.className = 'game-container ' + (gameState.currentLevel === 1 ? 'bg-village' : 'bg-grassland');
+      
+      document.getElementById('levelBadge').textContent = 
+        gameState.currentLevel === 1 ? '第一关 - 字词' : '第二关 - 句子';
+      
+      gameState.hearts = 3;
+      gameState.currentIndex = 0;
+      gameState.isPlaying = true;
+      gameState.keyCount = 0;
+      gameState.startTime = Date.now();
+      
+      document.getElementById('gameAvatar').textContent = gameState.playerEmoji;
+      document.getElementById('gameMoney').textContent = gameState.coins;
+      updateHearts();
+      updateProgressBar();
+      
+      // 设置背景装饰
+      setupDecorations();
+      
+      generateContent();
+      document.addEventListener('keydown', handleKeyPress);
+      
+      // 开始 WPM 更新定时器
+      setInterval(updateWPM, 1000);
+    }
+    
+    // 设置背景装饰
+    function setupDecorations() {
+      const decorations = document.getElementById('bgDecorations');
+      const centerDecor = document.getElementById('centerDecor');
+      
+      if (gameState.currentLevel === 1) {
+        // 村庄关卡装饰
+        const villageItems = ['🏠', '🌳', '🏡', '🌲', '🌻', '🌷', '☀️'];
+        decorations.innerHTML = '';
+        for (let i = 0; i < 12; i++) {
+          const item = document.createElement('span');
+          item.className = 'decor-item';
+          item.textContent = villageItems[Math.floor(Math.random() * villageItems.length)];
+          item.style.left = Math.random() * 90 + '%';
+          item.style.top = Math.random() * 70 + 10 + '%';
+          item.style.animationDelay = Math.random() * 2 + 's';
+          item.style.fontSize = (1.2 + Math.random() * 1) + 'rem';
+          decorations.appendChild(item);
+        }
+        centerDecor.innerHTML = '<div style="font-size: 2rem;">🏘️</div><div class="decor-text">🏠 打字村庄 🏠</div>';
+      } else {
+        // 草原关卡装饰
+        const grassItems = ['🌻', '🌷', '🌺', '🌿', '🦋', '🐝', '🌼', '🍀', '🦗'];
+        decorations.innerHTML = '';
+        for (let i = 0; i < 12; i++) {
+          const item = document.createElement('span');
+          item.className = 'decor-item';
+          item.textContent = grassItems[Math.floor(Math.random() * grassItems.length)];
+          item.style.left = Math.random() * 90 + '%';
+          item.style.top = Math.random() * 70 + 10 + '%';
+          item.style.animationDelay = Math.random() * 2 + 's';
+          item.style.fontSize = (1.2 + Math.random() * 1) + 'rem';
+          decorations.appendChild(item);
+        }
+        centerDecor.innerHTML = '<div style="font-size: 2rem;">🌿</div><div class="decor-text">🌻 大草原 🌻</div>';
+      }
+    }
+    
+    // 更新进度条
+    function updateProgressBar() {
+      const coins = gameState.coins;
+      const emojisCanBuy = Math.floor(coins / 50);
+      const progress = Math.min((coins % 50) / 50 * 100, 100);
+      
+      document.getElementById('emojiCount').textContent = `可兑换 ${emojisCanBuy} 个表情`;
+      document.getElementById('progressFill').style.width = progress + '%';
+      document.getElementById('progressText').textContent = coins >= 50 ? `${coins % 50}/50` : `${coins}/50`;
+    }
+    
+    // 更新 WPM
+    function updateWPM() {
+      if (!gameState.isPlaying || !gameState.startTime) return;
+      
+      const elapsed = (Date.now() - gameState.startTime) / 1000 / 60; // 分钟
+      if (elapsed < 0.05) return; // 至少3秒后才开始计算
+      
+      const wpm = Math.round(gameState.keyCount / elapsed);
+      document.getElementById('wpmValue').textContent = wpm;
+    }
+
+    function backToMap() {
+      document.getElementById('gameContainer').style.display = 'none';
+      document.getElementById('soundToggle').style.display = 'none';
+      document.removeEventListener('keydown', handleKeyPress);
+      showWorldMap();
+    }
+
+    function generateContent() {
+      // 只在第一行完成后来这里时，才把下一行切换上来
+      // 正常初始化时，lines[0] 应该已经有内容了
+      
+      if (gameState.currentLevel === 1) {
+        if (Math.random() < 0.5) {
+          generateLetters();
+        } else {
+          generateWords();
+        }
+      } else {
+        generateSentence();
+      }
+      
+      generateNextLine();
+      renderLines();
+    }
+
+    function generateNextLine() {
+      if (gameState.currentLevel === 1) {
+        if (Math.random() < 0.5) {
+          const numLetters = Math.floor(Math.random() * 3) + 3;
+          const items = [];
+          for (let i = 0; i < numLetters; i++) {
+            items.push({
+              type: 'letter',
+              value: LETTERS[Math.floor(Math.random() * LETTERS.length)],
+              isSpace: false,
+              current: false,
+              completed: false,
+              error: false
+            });
+          }
+          gameState.nextLine = items;
+        } else {
+          const numWords = Math.floor(Math.random() * 2) + 2;
+          const items = [];
+          for (let i = 0; i < numWords; i++) {
+            items.push({
+              type: 'word',
+              value: WORDS[Math.floor(Math.random() * WORDS.length)],
+              current: false,
+              completed: false,
+              error: false
+            });
+          }
+          gameState.nextLine = items;
+        }
+      } else {
+        const sentence = SENTENCES[Math.floor(Math.random() * SENTENCES.length)];
+        const chars = sentence.split('').map((char, i) => ({
+          type: 'letter',
+          value: char,
+          isSpace: char === ' ',
+          current: false,
+          completed: false,
+          error: false
+        }));
+        gameState.nextLine = chars;
+      }
+    }
+
+    function generateSentence() {
+      const sentence = SENTENCES[Math.floor(Math.random() * SENTENCES.length)];
+      const chars = sentence.split('').map((char, i) => ({
+        type: 'letter',
+        value: char,
+        isSpace: char === ' ',
+        current: i === 0,
+        completed: false,
+        error: false
+      }));
+      gameState.lines[0] = chars;
+      gameState.currentIndex = 0;
+    }
+
+    function generateWords() {
+      const numWords = Math.floor(Math.random() * 2) + 2;
+      const items = [];
+      for (let i = 0; i < numWords; i++) {
+        items.push({
+          type: 'word',
+          value: WORDS[Math.floor(Math.random() * WORDS.length)],
+          current: i === 0,
+          completed: false,
+          error: false
+        });
+      }
+      gameState.lines[0] = items;
+      gameState.currentIndex = 0;
+    }
+
+    function generateLetters() {
+      const numLetters = Math.floor(Math.random() * 4) + 4;
+      const items = [];
+      for (let i = 0; i < numLetters; i++) {
+        items.push({
+          type: 'letter',
+          value: LETTERS[Math.floor(Math.random() * LETTERS.length)],
+          isSpace: false,
+          current: i === 0,
+          completed: false,
+          error: false
+        });
+      }
+      gameState.lines[0] = items;
+      gameState.currentIndex = 0;
+    }
+
+    function renderLines() {
+      const line1 = document.getElementById('line1');
+      const line2 = document.getElementById('line2');
+
+      line1.innerHTML = '<span class="line-label">当前：</span>';
+      line2.innerHTML = '<span class="line-label next-label">下一个：</span>';
+
+      gameState.lines[0].forEach(item => {
+        const span = document.createElement('span');
+        span.className = getClassName(item);
+        span.textContent = item.isSpace ? '\u00A0' : item.value;
+        line1.appendChild(span);
+      });
+
+      if (gameState.nextLine) {
+        gameState.nextLine.forEach(item => {
+          const span = document.createElement('span');
+          span.className = item.type + (item.isSpace ? ' space' : '');
+          span.textContent = item.isSpace ? '\u00A0' : item.value;
+          line2.appendChild(span);
+        });
+      }
+    }
+
+    function getClassName(item) {
+      let className = item.type;
+      if (item.isSpace) className += ' space';
+      if (item.current) className += ' current';
+      if (item.completed) className += ' completed';
+      if (item.error) className += ' error';
+      return className;
+    }
+
+    function handleKeyPress(e) {
+      if (!gameState.isPlaying) return;
+
+      const key = e.key.toLowerCase();
+      if (key.length !== 1 || (!/[a-z]/.test(key) && key !== ' ')) return;
+
+      // 记录按键开始时间
+      if (!gameState.startTime || gameState.keyCount === 0) {
+        gameState.startTime = Date.now();
+      }
+
+      const currentLineItems = gameState.lines[0];
+      if (currentLineItems.length === 0) return;
+
+      const currentItem = currentLineItems[gameState.currentIndex];
+
+      if (currentItem.type === 'letter') {
+        // 句子模式
+        if (currentItem.isSpace) {
+          if (key === ' ') {
+            currentItem.completed = true;
+            currentItem.current = false;
+            gameState.keyCount++;
+            showEmojiPopup(true);
+            advanceToNext();
+          } else {
+            showEmojiPopup(false);
+            handleError();
+          }
+        } else {
+          if (key === currentItem.value.toLowerCase()) {
+            currentItem.completed = true;
+            currentItem.current = false;
+            gameState.keyCount++;
+            showEmojiPopup(true);
+            advanceToNext();
+          } else {
+            showEmojiPopup(false);
+            handleError();
+          }
+        }
+      } else if (currentItem.type === 'word') {
+        const remaining = currentItem.value.toLowerCase();
+        const nextChar = remaining[0];
+
+        if (key === nextChar) {
+          currentItem.value = currentItem.value.slice(1);
+          gameState.keyCount++;
+          showEmojiPopup(true);
+          playSound('correct');
+
+          if (currentItem.value === '') {
+            currentItem.completed = true;
+            currentItem.current = false;
+            gameState.coins += 10;
+            playSound('complete');
+            updateMoneyDisplay();
+            updateProgressBar();
+            showReward('💰 +10');
+
+            gameState.currentIndex++;
+            if (gameState.currentIndex < currentLineItems.length) {
+              currentLineItems[gameState.currentIndex].current = true;
+              renderLines();
+            } else {
+              // 行完成！切换下一行
+              setTimeout(() => completeLineAndSwitch(), 600);
+              return;
+            }
+          } else {
+            renderLines();
+          }
+        } else {
+          showEmojiPopup(false);
+          handleError();
+        }
+      } else if (currentItem.type === 'letter' && !currentItem.isSpace) {
+        if (key === currentItem.value.toLowerCase()) {
+          currentItem.completed = true;
+          currentItem.current = false;
+          gameState.coins += 5;
+          gameState.keyCount++;
+          showEmojiPopup(true);
+          playSound('correct');
+          updateMoneyDisplay();
+          updateProgressBar();
+          showReward('+5');
+
+          gameState.currentIndex++;
+          if (gameState.currentIndex < currentLineItems.length) {
+            currentLineItems[gameState.currentIndex].current = true;
+            renderLines();
+          } else {
+            // 行完成！切换下一行
+            setTimeout(() => completeLineAndSwitch(), 500);
+            return;
+          }
+        } else {
+          showEmojiPopup(false);
+          handleError();
+        }
+      }
+    }
+    
+    // 显示表情弹出
+    function showEmojiPopup(isPositive) {
+      const emoji = isPositive 
+        ? POSITIVE_EMOJIS[Math.floor(Math.random() * POSITIVE_EMOJIS.length)]
+        : NEGATIVE_EMOJIS[Math.floor(Math.random() * NEGATIVE_EMOJIS.length)];
+      
+      const popup = document.createElement('div');
+      popup.className = 'emoji-popup';
+      popup.textContent = emoji;
+      
+      // 随机位置在屏幕中间区域
+      const x = 30 + Math.random() * 40; // 30-70%
+      const y = 30 + Math.random() * 20; // 30-50%
+      popup.style.left = x + '%';
+      popup.style.top = y + '%';
+      
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 800);
+    }
+
+    // 统一处理行完成和切换
+    function completeLineAndSwitch() {
+      if (gameState.nextLine && gameState.nextLine.length > 0) {
+        // 把下一行切换到当前行
+        gameState.lines[0] = gameState.nextLine;
+        gameState.lines[0][0].current = true;
+        gameState.currentIndex = 0;
+        gameState.coins += 20;
+        playSound('complete');
+        updateMoneyDisplay();
+        updateProgressBar();
+        showReward('💰 +20');
+        // 生成新的下一行
+        generateNextLine();
+        renderLines();
+      } else {
+        // 没有下一行，重新生成
+        generateContent();
+      }
+    }
+
+    function advanceToNext() {
+      const currentLineItems = gameState.lines[0];
+      gameState.currentIndex++;
+
+      if (gameState.currentIndex < currentLineItems.length) {
+        currentLineItems[gameState.currentIndex].current = true;
+        playSound('correct');
+        showReward('+5');
+        gameState.coins += 5;
+        updateMoneyDisplay();
+        renderLines();
+      } else {
+        // 行完成！切换下一行
+        completeLineAndSwitch();
+      }
+    }
+
+    function handleError() {
+      playSound('error');
+      const currentLineItems = gameState.lines[0];
+      const currentItem = currentLineItems[gameState.currentIndex];
+      currentItem.error = true;
+      renderLines();
+      setTimeout(() => {
+        currentItem.error = false;
+        renderLines();
+      }, 300);
+
+      gameState.hearts--;
+      updateHearts();
+      if (gameState.hearts <= 0) {
+        gameState.isPlaying = false;
+        setTimeout(() => showBuyHeartModal(), 500);
+      }
+    }
+
+    function updateMoneyDisplay() {
+      const display = document.getElementById('gameMoney');
+      display.textContent = gameState.coins;
+    }
+
+    function updateHearts() {
+      for (let i = 1; i <= 3; i++) {
+        const heart = document.getElementById(`heart${i}`);
+        if (i > gameState.hearts) {
+          if (!heart.classList.contains('lost')) {
+            heart.classList.add('breaking');
+            setTimeout(() => {
+              heart.classList.remove('breaking');
+              heart.classList.add('lost');
+            }, 500);
+          }
+        } else {
+          heart.classList.remove('lost', 'breaking');
+        }
+      }
+    }
+
+    function showReward(text) {
+      const popup = document.createElement('div');
+      popup.className = 'reward-popup';
+      popup.textContent = text;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 1000);
+    }
+
+    function showBuyHeartModal() {
+      document.getElementById('buyHeartBtn').disabled = gameState.coins < 50;
+      document.getElementById('buyHeartModal').classList.add('show');
+    }
+
+    function buyHeart() {
+      if (gameState.coins >= 50) {
+        gameState.coins -= 50;
+        gameState.hearts = 1;
+        updateMoneyDisplay();
+        updateHearts();
+        document.getElementById('buyHeartModal').classList.remove('show');
+        gameState.isPlaying = true;
+        playSound('shop');
+      }
+    }
+
+    function endGame() {
+      document.getElementById('buyHeartModal').classList.remove('show');
+      document.getElementById('finalScore').textContent = gameState.coins + '元';
+      document.getElementById('gameOverModal').classList.add('show');
+    }
+
+    function returnToMap() {
+      document.getElementById('gameOverModal').classList.remove('show');
+      backToMap();
+    }
+
+    // ==================== 初始化 ====================
+    window.onload = function() {
+      document.addEventListener('click', function initAudio() {
+        audioContext.resume();
+        document.removeEventListener('click', initAudio);
+      }, { once: true });
+      
+      initLoginScreen();
+    };
+  </script>
+</body>
+</html>
