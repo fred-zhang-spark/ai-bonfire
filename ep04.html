@@ -18,7 +18,8 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { background:var(--bg); color:var(--white); font-family:var(--font); height:100%; overflow:hidden; }
 
-  .slideshow { width:100vw; height:100vh; position:relative; }
+  .page-wrapper { display:flex; width:100vw; height:100vh; }
+  .slideshow { flex:1; height:100vh; position:relative; min-width:0; }
   .slide {
     position:absolute; inset:0; display:flex; flex-direction:column;
     align-items:center; justify-content:flex-start; padding:0 64px 72px;
@@ -57,6 +58,57 @@
 
   @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
   .float { animation:float 3.5s ease-in-out infinite; }
+
+  /* Game sidebar */
+  .game-sidebar {
+    width:380px; flex-shrink:0; height:100vh; background:rgba(255,255,255,0.02);
+    border-left:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column;
+    overflow:hidden; position:relative; z-index:50;
+  }
+  .game-sidebar-header {
+    padding:14px 18px; font-size:13px; font-weight:700; color:var(--gray1);
+    border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:8px;
+    background:rgba(0,0,0,0.3); flex-shrink:0;
+  }
+  .game-sidebar-header .gs-emoji { font-size:18px; }
+  .game-sidebar-body { flex:1; display:flex; flex-direction:column; min-height:0; }
+  .game-sidebar-body iframe {
+    flex:1; width:100%; border:none; border-radius:0;
+  }
+  .game-tab-bar {
+    display:flex; border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0;
+  }
+  .game-tab {
+    flex:1; padding:10px 12px; font-size:12px; font-weight:600; color:var(--gray2);
+    background:transparent; border:none; cursor:pointer; text-align:center;
+    border-bottom:2px solid transparent; transition:all 0.2s;
+  }
+  .game-tab:hover { color:var(--gray1); background:rgba(255,255,255,0.03); }
+  .game-tab.active { color:var(--orange); border-bottom-color:var(--orange); }
+  .game-sidebar .gs-open-btn {
+    display:block; margin:8px 14px 12px; padding:8px 0; border-radius:8px; text-align:center;
+    font-size:12px; font-weight:600; color:var(--orange); text-decoration:none;
+    background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.2); transition:all 0.2s;
+  }
+  .game-sidebar .gs-open-btn:hover { background:rgba(255,159,10,0.15); }
+  /* Floating toggle for narrow screens */
+  .game-toggle {
+    display:none; position:fixed; top:50%; right:0; transform:translateY(-50%);
+    z-index:200; width:36px; height:80px; border-radius:12px 0 0 12px;
+    background:rgba(255,159,10,0.15); border:1px solid rgba(255,159,10,0.3); border-right:none;
+    cursor:pointer; color:var(--orange); font-size:16px;
+    writing-mode:vertical-rl; text-orientation:mixed; line-height:36px; text-align:center;
+  }
+  .game-toggle:hover { background:rgba(255,159,10,0.25); }
+  @media(max-width:900px) {
+    .game-sidebar { position:fixed; right:-400px; top:0; height:100vh; z-index:300; transition:right 0.35s ease; box-shadow:-4px 0 20px rgba(0,0,0,0.5); background:var(--bg); }
+    .game-sidebar.open { right:0; }
+    .game-toggle { display:flex; align-items:center; justify-content:center; }
+    .game-sidebar-header .gs-close { display:inline-block; margin-left:auto; cursor:pointer; font-size:18px; color:var(--gray2); }
+  }
+  @media(min-width:901px) {
+    .game-sidebar-header .gs-close { display:none; }
+  }
 
   .bg-cover { background:radial-gradient(ellipse 90% 70% at 50% 40%,#0a1420,#000); }
   .bg-guess { background:radial-gradient(ellipse 90% 70% at 50% 40%,#0a1828,#000); }
@@ -189,8 +241,11 @@
 <div class="progress" id="prog"></div>
 <div class="series-tag">和孩子一起探索AI · 第4期</div>
 <div class="page-num" id="pageNum">1 / 9</div>
-<div class="kbd-hint">← → 翻页 · 空格下一步</div>
+<div class="kbd-hint" style="right:400px;">← → 翻页 · 空格下一步</div>
 
+<button class="game-toggle" onclick="document.getElementById('gameSidebar').classList.toggle('open')">🎮 游戏</button>
+
+<div class="page-wrapper">
 <div class="slideshow" id="slideshow">
 
   <!-- ══ S0 · 封面 ══ -->
@@ -202,7 +257,7 @@
       背后全是<strong style="color:var(--white);">一行一行的文字</strong>。<br>
       今天我们不光看——还要<strong style="color:var(--teal);">自己写一个游戏</strong>！
     </div>
-    <div class="cover-badge">🌱 和孩子一起探索AI · 第4期</div>
+    <div class="cover-badge">🔥 Spark Talk · AI篝火 · 第4期</div>
   </div>
 
   <!-- ══ S1 · 猜一猜 ══ -->
@@ -440,7 +495,7 @@
     </ul>
     <div style="margin-top:28px;">
       <div class="eyebrow" style="color:var(--gray2);">下期预告</div>
-      <p style="font-size:1.3rem;font-weight:700;">谁在做豆包？免费的AI怎么赚钱？💰<br><span style="font-size:1rem;color:var(--gray1);">AI的成本与商业模式</span></p>
+      <p style="font-size:1.3rem;font-weight:700;">记忆大挑战 🧠<br><span style="font-size:1rem;color:var(--gray1);">人脑 vs AI，谁的记忆力更强？做你自己的翻牌游戏！</span></p>
     </div>
     <div class="roadmap" style="margin-top:20px;">
       <div class="rm-step done"><div class="rm-icon">✅</div><div class="rm-label">第0期<br>大飞跃</div></div>
@@ -453,9 +508,9 @@
       <div class="rm-arrow">→</div>
       <div class="rm-step current"><div class="rm-icon">📍</div><div class="rm-label">第4期<br><strong>代码与创造</strong></div></div>
       <div class="rm-arrow">→</div>
-      <div class="rm-step"><div class="rm-icon">💰</div><div class="rm-label">第5期<br>AI的成本</div></div>
+      <div class="rm-step"><div class="rm-icon">🧠</div><div class="rm-label">第5期<br>记忆</div></div>
     </div>
-    <div class="cover-badge" style="margin-top:20px;">🌱 第4期完 · 下周见！</div>
+    <div class="cover-badge" style="margin-top:20px;">🔥 Spark Talk · AI篝火 · 第4期完 · 下周见！</div>
   </div>
 
 </div>
@@ -465,6 +520,20 @@
   <div class="dots" id="dots"></div>
   <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">›</button>
 </div>
+
+<!-- Game Sidebar -->
+<div class="game-sidebar" id="gameSidebar">
+  <div class="game-sidebar-header">
+    <span class="gs-emoji">🎮</span> 本期成果：打字游戏
+    <span class="gs-close" onclick="document.getElementById('gameSidebar').classList.remove('open')">✕</span>
+  </div>
+  <div class="game-sidebar-body">
+    <iframe src="typing-game.html" title="甜品城堡打字乐园" loading="lazy"></iframe>
+  </div>
+  <a class="gs-open-btn" href="typing-game.html" target="_blank">↗ 全屏打开游戏</a>
+</div>
+
+</div><!-- end page-wrapper -->
 
 <script>
   // ── Slideshow core ──

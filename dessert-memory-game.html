@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🍰 甜品记忆王国</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #ffe0f0 0%, #fff8e1 50%, #e8f5e9 100%);
+      font-family: 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* ===== 标题 ===== */
+    header { text-align: center; padding: 22px 16px 0; }
+    header h1 { font-size: clamp(1.4rem, 4vw, 2.2rem); color: #c2185b; text-shadow: 2px 2px 0 #fff, 4px 4px 8px rgba(194,24,91,.18); letter-spacing: 2px; }
+    header p  { margin-top: 5px; color: #f06292; font-size: .88rem; }
+
+    /* ===== 难度 ===== */
+    .difficulty-row { display: flex; justify-content: center; gap: 8px; padding: 12px 16px 0; flex-wrap: wrap; }
+    .diff-btn {
+      padding: 6px 18px; border-radius: 50px; border: 2px solid #f48fb1;
+      background: rgba(255,255,255,.7); color: #c2185b; font-size: .82rem;
+      font-weight: 700; cursor: pointer; transition: all .18s;
+    }
+    .diff-btn.active, .diff-btn:hover {
+      background: linear-gradient(135deg, #e91e63, #c2185b); color: #fff; border-color: transparent;
+    }
+
+    /* ===== 仪表板 ===== */
+    .dashboard { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 14px 16px 0; }
+    .dash-card {
+      background: rgba(255,255,255,.78); backdrop-filter: blur(8px);
+      border-radius: 16px; padding: 10px 20px; text-align: center;
+      box-shadow: 0 3px 14px rgba(194,24,91,.10); min-width: 90px;
+    }
+    .dash-card .label { font-size: .7rem; color: #e91e63; font-weight: 700; letter-spacing: 1px; }
+    .dash-card .value { font-size: 1.5rem; font-weight: 900; color: #880e4f; }
+
+    /* ===== 主体布局 ===== */
+    .main-layout { display: flex; justify-content: center; align-items: flex-start; gap: 28px; padding: 18px 16px 10px; flex-wrap: wrap; }
+
+    /* ===== 城堡区域 ===== */
+    .castle-section { display: flex; flex-direction: column; align-items: center; min-width: 200px; }
+    .castle-title { font-size: .95rem; color: #ad1457; font-weight: 800; margin-bottom: 10px; text-align: center; }
+
+    /* 城堡画布 */
+    .castle-canvas { position: relative; display: flex; align-items: flex-end; justify-content: center; }
+
+    /* 所有城堡部位的通用样式 */
+    .castle-part {
+      position: absolute; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(.6) translateY(16px);
+      transition: opacity .5s cubic-bezier(.175,.885,.32,1.275), transform .5s cubic-bezier(.175,.885,.32,1.275);
+    }
+    .castle-part.unlocked { opacity: 1; transform: scale(1) translateY(0); }
+    .castle-part .part-emoji { font-size: 1.4rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,.18)); }
+    .castle-part .gate {
+      position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+      z-index:2; background:rgba(0,0,0,.32); border-radius:50% 50% 0 0 / 60% 60% 0 0;
+    }
+    .castle-part::before {
+      content:''; position:absolute; inset:0;
+      background-image: repeating-linear-gradient(0deg,transparent,transparent 10px,rgba(0,0,0,.07) 10px,rgba(0,0,0,.07) 11px),
+                       repeating-linear-gradient(90deg,transparent,transparent 14px,rgba(0,0,0,.05) 14px,rgba(0,0,0,.05) 15px);
+    }
+
+    /* 塔楼小窗 */
+    .castle-part.has-window::after {
+      content:''; position:absolute; width:18px; height:22px;
+      background:rgba(0,0,0,.22); border-radius:50% 50% 0 0 / 60% 60% 0 0; top:16px;
+    }
+
+    /* ======================
+       小城堡（简单 6部位，160×175）
+       部位顺序：地基→左墙→中墙→右墙→中央塔→屋顶
+    ====================== */
+    #castle-small  { width: 160px; height: 175px; }
+    #sp-0 { left:0;bottom:0;width:160px;height:18px;background:linear-gradient(180deg,#c8a97a,#a07850);border:2px solid #7d5a30;border-radius:4px; }
+    #sp-1 { left:0;bottom:18px;width:44px;height:52px;background:linear-gradient(180deg,#f4a7b9,#e57399);border:2px solid #c2185b;border-radius:4px 4px 0 0; }
+    #sp-2 { left:44px;bottom:18px;width:72px;height:52px;background:linear-gradient(180deg,#f8bbd9,#f48fb1);border:2px solid #c2185b;border-radius:4px 4px 0 0; }
+    #sp-3 { right:0;bottom:18px;width:44px;height:52px;background:linear-gradient(180deg,#f4a7b9,#e57399);border:2px solid #c2185b;border-radius:4px 4px 0 0; }
+    #sp-4 { left:44px;bottom:70px;width:72px;height:60px;background:linear-gradient(180deg,#fff176,#ffd54f);border:2px solid #f9a825;border-radius:4px 4px 0 0; }
+    #sp-5 { left:44px;bottom:130px;width:72px;height:40px;background:linear-gradient(160deg,#a5d6a7,#43a047);clip-path:polygon(50% 0%,0% 100%,100% 100%);border:none;border-radius:0; }
+
+    /* ======================
+       中城堡（普通 9部位，210×250）
+       部位顺序：地基→左墙→中墙→右墙→左塔→中塔→右塔→左屋顶→中屋顶→右屋顶
+    ====================== */
+    #castle-medium { width: 210px; height: 250px; }
+    #mp-0 { left:0;bottom:0;width:210px;height:22px;background:linear-gradient(180deg,#c8a97a,#a07850);border:3px solid #7d5a30;border-radius:4px; }
+    #mp-1 { left:0;bottom:22px;width:52px;height:65px;background:linear-gradient(180deg,#f4a7b9,#e57399);border:2px solid #c2185b;border-radius:4px 4px 0 0; }
+    #mp-2 { left:52px;bottom:22px;width:106px;height:65px;background:linear-gradient(180deg,#f8bbd9,#f48fb1);border:2px solid #c2185b;border-radius:4px 4px 0 0; }
+    #mp-3 { right:0;bottom:22px;width:52px;height:65px;background:linear-gradient(180deg,#f4a7b9,#e57399);border:2px solid #c2185b;border-radius:4px 4px 0 0; }
+    #mp-4 { left:0;bottom:87px;width:52px;height:68px;background:linear-gradient(180deg,#ce93d8,#ab47bc);border:2px solid #7b1fa2;border-radius:4px 4px 0 0; }
+    #mp-5 { left:62px;bottom:87px;width:86px;height:80px;background:linear-gradient(180deg,#fff176,#ffd54f);border:2px solid #f9a825;border-radius:4px 4px 0 0; }
+    #mp-6 { right:0;bottom:87px;width:52px;height:68px;background:linear-gradient(180deg,#ce93d8,#ab47bc);border:2px solid #7b1fa2;border-radius:4px 4px 0 0; }
+    #mp-7 { left:0;bottom:155px;width:52px;height:40px;background:linear-gradient(160deg,#ef9a9a,#e53935);clip-path:polygon(50% 0%,0% 100%,100% 100%);border:none; }
+    #mp-8 { left:62px;bottom:167px;width:86px;height:48px;background:linear-gradient(160deg,#a5d6a7,#43a047);clip-path:polygon(50% 0%,0% 100%,100% 100%);border:none; }
+    #mp-9 { right:0;bottom:155px;width:52px;height:40px;background:linear-gradient(160deg,#ef9a9a,#e53935);clip-path:polygon(50% 0%,0% 100%,100% 100%);border:none; }
+    #mp-4.has-window::after, #mp-6.has-window::after { width:16px; height:20px; top:14px; }
+
+    /* ======================
+       大城堡（困难 12部位，270×320）
+       部位顺序：地基→左墙→中墙→右墙→左塔→中塔→右塔→左屋顶→中屋顶→右屋顶→左旗→中旗
+    ====================== */
+    #castle-large { width: 270px; height: 320px; }
+    #lp-0  { left:0;bottom:0;width:270px;height:26px;background:linear-gradient(180deg,#c8a97a,#a07850);border:3px solid #7d5a30;border-radius:5px; }
+    #lp-1  { left:0;bottom:26px;width:68px;height:80px;background:linear-gradient(180deg,#f4a7b9,#e57399);border:3px solid #c2185b;border-radius:5px 5px 0 0; }
+    #lp-2  { left:68px;bottom:26px;width:134px;height:80px;background:linear-gradient(180deg,#f8bbd9,#f48fb1);border:3px solid #c2185b;border-radius:5px 5px 0 0; }
+    #lp-3  { right:0;bottom:26px;width:68px;height:80px;background:linear-gradient(180deg,#f4a7b9,#e57399);border:3px solid #c2185b;border-radius:5px 5px 0 0; }
+    #lp-4  { left:0;bottom:106px;width:68px;height:84px;background:linear-gradient(180deg,#ce93d8,#ab47bc);border:3px solid #7b1fa2;border-radius:5px 5px 0 0; }
+    #lp-5  { left:85px;bottom:106px;width:100px;height:98px;background:linear-gradient(180deg,#fff176,#ffd54f);border:3px solid #f9a825;border-radius:5px 5px 0 0; }
+    #lp-6  { right:0;bottom:106px;width:68px;height:84px;background:linear-gradient(180deg,#ce93d8,#ab47bc);border:3px solid #7b1fa2;border-radius:5px 5px 0 0; }
+    #lp-7  { left:0;bottom:190px;width:68px;height:50px;background:linear-gradient(160deg,#ef9a9a,#e53935);clip-path:polygon(50% 0%,0% 100%,100% 100%);border:none; }
+    #lp-8  { left:85px;bottom:204px;width:100px;height:58px;background:linear-gradient(160deg,#a5d6a7,#43a047);clip-path:polygon(50% 0%,0% 100%,100% 100%);border:none; }
+    #lp-9  { right:0;bottom:190px;width:68px;height:50px;background:linear-gradient(160deg,#ef9a9a,#e53935);clip-path:polygon(50% 0%,0% 100%,100% 100%);border:none; }
+    #lp-10 { left:20px;bottom:238px;width:28px;height:38px;font-size:1.6rem; }
+    #lp-11 { left:112px;bottom:260px;width:28px;height:38px;font-size:1.6rem; }
+    #lp-4.has-window::after, #lp-6::after { width:20px; height:24px; top:18px; }
+
+    /* ===== 进度 ===== */
+    .castle-progress { margin-top: 10px; font-size: .8rem; color: #ad1457; font-weight: 600; text-align: center; }
+    .progress-bar-bg { width: 200px; height: 8px; background: rgba(194,24,91,.15); border-radius: 10px; margin: 6px auto 0; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #e91e63, #ff4081); border-radius: 10px; transition: width .5s ease; }
+
+    /* ===== 解锁飘字 ===== */
+    .unlock-toast {
+      position: fixed; left: 50%; top: 45%; transform: translate(-50%, -50%) scale(0);
+      background: linear-gradient(135deg, #fff9c4, #fff3e0); border: 3px solid #e91e63;
+      border-radius: 20px; padding: 14px 28px; text-align: center; z-index: 98;
+      pointer-events: none; box-shadow: 0 8px 32px rgba(194,24,91,.3);
+      transition: transform .25s cubic-bezier(.175,.885,.32,1.275), opacity .3s; opacity: 0;
+    }
+    .unlock-toast.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    .unlock-toast .ut-emoji { font-size: 2.2rem; display: block; }
+    .unlock-toast .ut-text  { font-size: .92rem; color: #c2185b; font-weight: 700; margin-top: 4px; }
+
+    /* ===== 角色蹦出 ===== */
+    .char-pop {
+      position: fixed; z-index: 99; pointer-events: none;
+      filter: drop-shadow(0 6px 16px rgba(0,0,0,.25));
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .char-pop .cp-emoji { font-size: 2.8rem; line-height: 1; }
+    .char-pop .cp-name  {
+      font-size: .9rem; font-weight: 800; color: #fff;
+      background: linear-gradient(135deg, #e91e63, #c2185b);
+      padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0,0,0,.3);
+    }
+    @keyframes charBurst {
+      0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+      40%  { transform: scale(1.35) rotate(8deg);  opacity: 1; }
+      65%  { transform: scale(1)   rotate(-4deg); opacity: 1; }
+      80%  { transform: scale(1)   rotate(0deg);   opacity: 1; }
+      100% { transform: scale(.7)  translateY(-40px); opacity: 0; }
+    }
+    .char-pop.animate { animation: charBurst 1.5s ease forwards; }
+
+    /* ===== 游戏区 ===== */
+    .game-area { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .btn {
+      padding: 9px 24px; border: none; border-radius: 50px; font-size: .9rem;
+      font-weight: 700; cursor: pointer; transition: all .18s;
+    }
+    .btn-primary { background: linear-gradient(135deg, #e91e63, #c2185b); color: #fff; box-shadow: 0 4px 14px rgba(233,30,99,.32); }
+    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-secondary { background: rgba(255,255,255,.85); color: #c2185b; border: 2px solid #f48fb1; }
+    .btn-secondary:hover { background: #fce4ec; transform: translateY(-2px); }
+
+    .grid { display: grid; gap: 10px; }
+
+    /* ===== 卡牌 ===== */
+    .card { width: 82px; height: 82px; perspective: 600px; cursor: pointer; border-radius: 14px; }
+    @media (max-width: 540px) { .card { width: 64px; height: 64px; } }
+    .card-inner {
+      width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
+      transition: transform .45s cubic-bezier(.4,0,.2,1); border-radius: 14px;
+    }
+    .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
+    .card-front, .card-back {
+      position: absolute; inset: 0; border-radius: 14px; backface-visibility: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #f48fb1 0%, #f06292 50%, #e91e63 100%);
+      box-shadow: 0 4px 12px rgba(233,30,99,.25), inset 0 1px 0 rgba(255,255,255,.22);
+    }
+    .card-back::after { content: '🎀'; font-size: 1.6rem; }
+    .card-front {
+      transform: rotateY(180deg);
+      background: linear-gradient(135deg, #fff9c4 0%, #fff3e0 100%);
+      box-shadow: 0 4px 12px rgba(0,0,0,.09); font-size: 2.2rem;
+    }
+    @media (max-width: 540px) { .card-front { font-size: 1.8rem; } .card-back::after { font-size: 1.3rem; } }
+    .card.matched .card-front {
+      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+      box-shadow: 0 0 0 3px #66bb6a, 0 4px 12px rgba(102,187,106,.25);
+      animation: matchBounce .4s ease;
+    }
+    @keyframes matchBounce {
+      0%,100% { transform: rotateY(180deg) scale(1); }
+      50%      { transform: rotateY(180deg) scale(1.13); }
+    }
+    .card.wrong .card-front {
+      animation: wrongShake .4s ease;
+      background: linear-gradient(135deg, #fce4ec, #fff);
+    }
+    @keyframes wrongShake {
+      0%,100% { transform: rotateY(180deg) translateX(0); }
+      20%,60%  { transform: rotateY(180deg) translateX(-6px); }
+      40%,80%  { transform: rotateY(180deg) translateX(6px); }
+    }
+
+    /* ===== 胜利弹窗 ===== */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(136,14,79,.55);
+      backdrop-filter: blur(5px); display: flex; align-items: center;
+      justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .overlay.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: linear-gradient(160deg, #fff9fb, #fff3f8); border-radius: 28px;
+      padding: 36px 32px; text-align: center; max-width: 380px; width: 92%;
+      box-shadow: 0 20px 60px rgba(136,14,79,.28);
+      transform: scale(.85); transition: transform .35s cubic-bezier(.175,.885,.32,1.275);
+    }
+    .overlay.show .modal { transform: scale(1); }
+    .modal h2 { font-size: 1.9rem; color: #ad1457; margin-bottom: 6px; }
+    .modal .castle-emoji-row { font-size: 2.2rem; margin: 12px 0; line-height: 1.5; word-break: break-all; }
+    .modal p { color: #880e4f; font-size: .9rem; margin-bottom: 6px; }
+    .modal .stats { display: flex; gap: 12px; justify-content: center; margin: 14px 0; flex-wrap: wrap; }
+    .modal .stat { background: #fce4ec; border-radius: 12px; padding: 9px 16px; }
+    .modal .stat .s-label { font-size: .7rem; color: #e91e63; font-weight: 700; }
+    .modal .stat .s-val { font-size: 1.35rem; font-weight: 900; color: #880e4f; }
+
+    /* ===== 粒子 ===== */
+    .particle { position: fixed; font-size: 1.5rem; pointer-events: none; animation: falling linear forwards; z-index: 99; }
+    @keyframes falling {
+      0%   { transform: translateY(-40px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh)  rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🍰 甜品记忆王国 🏰</h1>
+  <p>翻对每对甜品，为城堡解锁一个部位！</p>
+</header>
+
+<div class="difficulty-row" id="diffRow">
+  <button class="diff-btn active" data-diff="easy">🏠 简单 (4×3)</button>
+  <button class="diff-btn" data-diff="medium">🏢 普通 (4×4)</button>
+  <button class="diff-btn" data-diff="hard">🏰 困难 (5×4)</button>
+</div>
+
+<div class="dashboard">
+  <div class="dash-card"><div class="label">⏱ 时间</div><div class="value" id="timer">00:00</div></div>
+  <div class="dash-card"><div class="label">🔄 翻牌</div><div class="value" id="flips">0</div></div>
+  <div class="dash-card"><div class="label">✅ 配对</div><div class="value" id="matched">0</div></div>
+  <div class="dash-card"><div class="label">🏰 部位</div><div class="value" id="points">0</div></div>
+</div>
+
+<!-- 主体 -->
+<div class="main-layout">
+
+  <!-- 城堡区域 -->
+  <div class="castle-section">
+    <div class="castle-title" id="castleTitle">🏠 小甜品城堡</div>
+
+    <!-- 小城堡（6部位） -->
+    <div class="castle-canvas" id="castle-small">
+      <div class="castle-part" id="sp-0"><span class="part-emoji" id="se-0"></span></div>
+      <div class="castle-part" id="sp-1"><span class="part-emoji" id="se-1"></span></div>
+      <div class="castle-part" id="sp-2"><span class="part-emoji" id="se-2"></span><div class="gate" style="width:22px;height:26px;"></div></div>
+      <div class="castle-part" id="sp-3"><span class="part-emoji" id="se-3"></span></div>
+      <div class="castle-part" id="sp-4"><span class="part-emoji" id="se-4"></span></div>
+      <div class="castle-part" id="sp-5"><span class="part-emoji" id="se-5"></span></div>
+    </div>
+
+    <!-- 中城堡（9部位） -->
+    <div class="castle-canvas" id="castle-medium" style="display:none">
+      <div class="castle-part" id="mp-0"><span class="part-emoji" id="me-0"></span></div>
+      <div class="castle-part" id="mp-1"><span class="part-emoji" id="me-1"></span></div>
+      <div class="castle-part" id="mp-2"><span class="part-emoji" id="me-2"></span><div class="gate" style="width:28px;height:32px;"></div></div>
+      <div class="castle-part" id="mp-3"><span class="part-emoji" id="me-3"></span></div>
+      <div class="castle-part has-window" id="mp-4"><span class="part-emoji" id="me-4"></span></div>
+      <div class="castle-part" id="mp-5"><span class="part-emoji" id="me-5"></span></div>
+      <div class="castle-part has-window" id="mp-6"><span class="part-emoji" id="me-6"></span></div>
+      <div class="castle-part" id="mp-7"><span class="part-emoji" id="me-7"></span></div>
+      <div class="castle-part" id="mp-8"><span class="part-emoji" id="me-8"></span></div>
+      <div class="castle-part" id="mp-9"><span class="part-emoji" id="me-9"></span></div>
+    </div>
+
+    <!-- 大城堡（12部位） -->
+    <div class="castle-canvas" id="castle-large" style="display:none">
+      <div class="castle-part" id="lp-0"><span class="part-emoji" id="le-0"></span></div>
+      <div class="castle-part" id="lp-1"><span class="part-emoji" id="le-1"></span></div>
+      <div class="castle-part" id="lp-2"><span class="part-emoji" id="le-2"></span><div class="gate" style="width:36px;height:40px;"></div></div>
+      <div class="castle-part" id="lp-3"><span class="part-emoji" id="le-3"></span></div>
+      <div class="castle-part has-window" id="lp-4"><span class="part-emoji" id="le-4"></span></div>
+      <div class="castle-part" id="lp-5"><span class="part-emoji" id="le-5"></span></div>
+      <div class="castle-part has-window" id="lp-6"><span class="part-emoji" id="le-6"></span></div>
+      <div class="castle-part" id="lp-7"><span class="part-emoji" id="le-7"></span></div>
+      <div class="castle-part" id="lp-8"><span class="part-emoji" id="le-8"></span></div>
+      <div class="castle-part" id="lp-9"><span class="part-emoji" id="le-9"></span></div>
+      <div class="castle-part" id="lp-10"><span class="part-emoji" id="le-10"></span></div>
+      <div class="castle-part" id="lp-11"><span class="part-emoji" id="le-11"></span></div>
+    </div>
+
+    <div class="castle-progress" id="castleProgressText">配对甜品解锁城堡部位 🏗️</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- 游戏区 -->
+  <div class="game-area">
+    <div class="btn-row">
+      <button class="btn btn-primary" id="startBtn">🎮 开始游戏</button>
+      <button class="btn btn-secondary" id="resetBtn">🔁 重新开始</button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+</div>
+
+<!-- 解锁飘字 -->
+<div class="unlock-toast" id="unlockToast">
+  <span class="ut-emoji" id="utEmoji"></span>
+  <div class="ut-text" id="utText"></div>
+</div>
+
+<!-- 胜利弹窗 -->
+<div class="overlay" id="winOverlay">
+  <div class="modal">
+    <h2 id="winTitle">🎉 城堡建成啦！</h2>
+    <div class="castle-emoji-row" id="castlePreview"></div>
+    <p>太棒了，你的甜品王国大功告成！</p>
+    <div class="stats">
+      <div class="stat"><div class="s-label">用时</div><div class="s-val" id="winTime">—</div></div>
+      <div class="stat"><div class="s-label">翻牌数</div><div class="s-val" id="winFlips">—</div></div>
+      <div class="stat"><div class="s-label">城堡部位</div><div class="s-val" id="winPoints">—</div></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:8px" id="winRestartBtn">🎮 再玩一次</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   甜品数据
+============================================================ */
+const DESSERTS = [
+  { emoji:'🎂', name:'生日蛋糕' }, { emoji:'🍰', name:'草莓蛋糕' },
+  { emoji:'🧁', name:'纸杯蛋糕' }, { emoji:'🍩', name:'甜甜圈' },
+  { emoji:'🍪', name:'曲奇饼干' }, { emoji:'🍫', name:'巧克力' },
+  { emoji:'🍬', name:'糖果'     }, { emoji:'🍭', name:'棒棒糖' },
+  { emoji:'🍮', name:'布丁'     }, { emoji:'🍯', name:'蜂蜜'   },
+  { emoji:'🧇', name:'华夫饼'   }, { emoji:'🥧', name:'果派'   },
+];
+
+/* 角色数据 */
+const CHARACTERS = [
+  { emoji:'🐸', name:'BB啦布'  },
+  { emoji:'🛡️', name:'我的刀盾' },
+  { emoji:'🤖', name:'巴巴boy' },
+  { emoji:'👾', name:'八格牙路' },
+];
+
+/* 城堡部位解锁提示 */
+const PART_HINTS = [
+  '城堡有了坚实的地基！',
+  '左边的城墙砌好了！',
+  '中央城墙带着大门出现了！',
+  '右边的城墙砌好了！',
+  '左侧塔楼拔地而起！',
+  '雄伟的中央塔完工了！',
+  '右侧塔楼也建好了！',
+  '左边尖屋顶戴上啦！',
+  '中央大屋顶金光闪闪！',
+  '右边尖屋顶戴上啦！',
+  '左旗迎风飘扬！',
+  '城堡旗帜高高升起！🎉',
+];
+
+/* 难度配置 */
+const DIFFICULTY = {
+  easy:   { cols:4, rows:3, pairs:6,  castleId:'castle-small',  title:'🏠 小甜品城堡', prefix:'s', winTitle:'🏠 小城堡落成！' },
+  medium: { cols:4, rows:4, pairs:9,  castleId:'castle-medium', title:'🏢 中甜品城堡', prefix:'m', winTitle:'🏢 中城堡落成！' },
+  hard:   { cols:5, rows:4, pairs:12, castleId:'castle-large',  title:'🏰 大甜品城堡', prefix:'l', winTitle:'🏰 大城堡落成！' },
+};
+
+/* ============================================================
+   全局状态
+============================================================ */
+let state = {
+  diff:'easy', cards:[], flipped:[],
+  matched:0, flips:0, unlockedParts:0,
+  dessertLog:[], locked:false,
+  started:false, elapsed:0, timerID:null,
+};
+
+/* ============================================================
+   初始化
+============================================================ */
+function initGame() {
+  clearInterval(state.timerID);
+  const cfg = DIFFICULTY[state.diff];
+
+  const pool = shuffle([...DESSERTS]).slice(0, cfg.pairs);
+  const cardData = shuffle([...pool, ...pool].map((d, i) => ({
+    id:i, emoji:d.emoji, name:d.name, matched:false, flipped:false,
+  })));
+  cardData.forEach((c, idx) => { c.id = idx; });
+
+  state = {
+    diff:state.diff, cards:cardData, flipped:[],
+    matched:0, flips:0, unlockedParts:0, dessertLog:[],
+    locked:false, started:false, elapsed:0, timerID:null,
+  };
+
+  renderGrid(cfg);
+  updateDash();
+  showCastle(state.diff);
+  resetCastle();
+  document.getElementById('timer').textContent = '00:00';
+}
+
+/* ============================================================
+   城堡切换：显示对应城堡，重置所有部位
+============================================================ */
+function showCastle(diff) {
+  const cfg = DIFFICULTY[diff];
+  ['castle-small','castle-medium','castle-large'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  // 重置所有部位
+  ['s','m','l'].forEach(p => {
+    const max = p === 's' ? 6 : p === 'm' ? 10 : 12;
+    for (let i = 0; i < max; i++) {
+      const pe = document.getElementById(`${p}p-${i}`);
+      const ee = document.getElementById(`${p}e-${i}`);
+      if (pe) pe.classList.remove('unlocked');
+      if (ee) ee.textContent = '';
+    }
+  });
+  document.getElementById(cfg.castleId).style.display = 'flex';
+  document.getElementById('castleTitle').textContent = cfg.title;
+}
+
+/* ============================================================
+   重置城堡进度
+============================================================ */
+function resetCastle() {
+  updateProgress(0, DIFFICULTY[state.diff].pairs);
+}
+
+/* ============================================================
+   解锁下一个城堡部位
+============================================================ */
+function unlockNextCastlePart(emoji) {
+  const cfg = DIFFICULTY[state.diff];
+  const idx = state.unlockedParts;
+  if (idx >= cfg.pairs) return;
+
+  const partId  = `${cfg.prefix}p-${idx}`;
+  const emojiId = `${cfg.prefix}e-${idx}`;
+  const partEl  = document.getElementById(partId);
+  const emojiEl = document.getElementById(emojiId);
+
+  if (partEl) {
+    emojiEl.textContent = emoji;
+    partEl.classList.add('unlocked');
+  }
+
+  state.unlockedParts++;
+  updateProgress(state.unlockedParts, cfg.pairs);
+
+  const hint = PART_HINTS[idx] || `第${idx+1}部位解锁！`;
+  showUnlockToast(emoji, `解锁了【${PART_HINTS.length > 0 ? ['地基','城墙','中墙','右墙','左塔','中塔','右塔','左屋顶','中屋顶','右屋顶','左旗','中旗'][idx] : '部件'}】！${hint}`);
+}
+
+/* ============================================================
+   角色蹦出
+============================================================ */
+function spawnCharacter() {
+  const ch = CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+  const el = document.createElement('div');
+  el.className = 'char-pop';
+  el.innerHTML = `<span class="cp-emoji">${ch.emoji}</span><span class="cp-name">${ch.name}</span>`;
+  const x = 10 + Math.random() * 70;
+  const y = 20 + Math.random() * 45;
+  el.style.left = x + 'vw';
+  el.style.top  = y + 'vh';
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('animate'));
+  setTimeout(() => el.remove(), 1600);
+}
+
+/* ============================================================
+   进度条
+============================================================ */
+function updateProgress(done, total) {
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  if (done === 0) {
+    document.getElementById('castleProgressText').textContent = '配对甜品解锁城堡部位 🏗️';
+  } else if (done < total) {
+    document.getElementById('castleProgressText').textContent = `已解锁 ${done}/${total} 个部位 🏰`;
+  } else {
+    document.getElementById('castleProgressText').textContent = '🎉 甜品城堡大功告成！';
+  }
+}
+
+/* ============================================================
+   解锁提示
+============================================================ */
+let toastTimer = null;
+function showUnlockToast(emoji, text) {
+  const t = document.getElementById('unlockToast');
+  document.getElementById('utEmoji').textContent = emoji;
+  document.getElementById('utText').textContent = text;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1700);
+}
+
+/* ============================================================
+   网格渲染
+============================================================ */
+function renderGrid(cfg) {
+  const grid = document.getElementById('grid');
+  grid.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`;
+  grid.innerHTML = '';
+  state.cards.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.id = card.id;
+    el.innerHTML = `<div class="card-inner"><div class="card-back"></div><div class="card-front">${card.emoji}</div></div>`;
+    el.addEventListener('click', () => onCardClick(card.id));
+    grid.appendChild(el);
+  });
+}
+
+/* ============================================================
+   卡牌点击
+============================================================ */
+function onCardClick(id) {
+  const card = state.cards[id];
+  if (state.locked || card.flipped || card.matched) return;
+
+  if (!state.started) {
+    state.started = true;
+    state.timerID = setInterval(() => {
+      state.elapsed++;
+      document.getElementById('timer').textContent = formatTime(state.elapsed);
+    }, 1000);
+  }
+
+  card.flipped = true;
+  state.flipped.push(id);
+  state.flips++;
+  flipCardEl(id, true);
+  updateDash();
+
+  if (state.flipped.length === 2) {
+    state.locked = true;
+    const [a, b] = state.flipped;
+    const ca = state.cards[a], cb = state.cards[b];
+
+    if (ca.emoji === cb.emoji) {
+      setTimeout(() => {
+        ca.matched = cb.matched = true;
+        markMatched(a); markMatched(b);
+        state.matched++;
+        state.dessertLog.push(ca.emoji);
+        state.flipped = [];
+        state.locked = false;
+
+        unlockNextCastlePart(ca.emoji);
+        spawnCharacter();
+        updateDash();
+
+        if (state.matched === DIFFICULTY[state.diff].pairs) {
+          setTimeout(onWin, 700);
+        }
+      }, 480);
+    } else {
+      setTimeout(() => {
+        markWrong(a); markWrong(b);
+        setTimeout(() => {
+          ca.flipped = cb.flipped = false;
+          flipCardEl(a, false); flipCardEl(b, false);
+          removeWrong(a); removeWrong(b);
+          state.flipped = [];
+          state.locked = false;
+        }, 420);
+      }, 550);
+    }
+  }
+}
+
+/* ============================================================
+   DOM 辅助
+============================================================ */
+function flipCardEl(id, open) {
+  const el = document.querySelector(`.card[data-id="${id}"]`);
+  if (open) el.classList.add('flipped');
+  else el.classList.remove('flipped');
+}
+function markMatched(id) {
+  const el = document.querySelector(`.card[data-id="${id}"]`);
+  el.classList.add('matched'); el.classList.remove('flipped');
+}
+function markWrong(id) {
+  document.querySelector(`.card[data-id="${id}"]`).classList.add('wrong');
+}
+function removeWrong(id) {
+  const el = document.querySelector(`.card[data-id="${id}"]`);
+  el.classList.remove('wrong');
+  void el.offsetWidth;
+}
+
+/* ============================================================
+   仪表板
+============================================================ */
+function updateDash() {
+  document.getElementById('flips').textContent    = state.flips;
+  document.getElementById('matched').textContent  = state.matched;
+  document.getElementById('points').textContent   = state.unlockedParts;
+}
+
+/* ============================================================
+   胜利
+============================================================ */
+function onWin() {
+  clearInterval(state.timerID);
+  spawnParticles();
+  const cfg = DIFFICULTY[state.diff];
+  document.getElementById('winTitle').textContent   = cfg.winTitle;
+  document.getElementById('winTime').textContent    = formatTime(state.elapsed);
+  document.getElementById('winFlips').textContent   = state.flips;
+  document.getElementById('winPoints').textContent  = state.unlockedParts;
+  document.getElementById('castlePreview').textContent = state.dessertLog.join(' ');
+  document.getElementById('winOverlay').classList.add('show');
+}
+
+/* ============================================================
+   粒子
+============================================================ */
+function spawnParticles() {
+  const emojis = ['🎉','🎊','✨','🍰','🧁','🍩','🍪','🌸','💖','⭐','🏰','🐸','🛡️','🤖','👾'];
+  for (let i = 0; i < 45; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'particle';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.animationDuration = (1.5 + Math.random() * 2.2) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4500);
+    }, i * 55);
+  }
+}
+
+/* ============================================================
+   工具
+============================================================ */
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function formatTime(s) {
+  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+}
+
+/* ============================================================
+   事件
+============================================================ */
+document.getElementById('startBtn').addEventListener('click', initGame);
+document.getElementById('resetBtn').addEventListener('click', initGame);
+document.getElementById('winRestartBtn').addEventListener('click', () => {
+  document.getElementById('winOverlay').classList.remove('show');
+  initGame();
+});
+document.getElementById('diffRow').addEventListener('click', e => {
+  const btn = e.target.closest('.diff-btn');
+  if (!btn) return;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.diff = btn.dataset.diff;
+  initGame();
+});
+
+initGame();
+</script>
+</body>
+</html>
