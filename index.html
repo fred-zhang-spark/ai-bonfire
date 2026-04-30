@@ -26,6 +26,18 @@
   .tag { display:inline-block; padding:2px 8px; border-radius:6px; font-size:0.7rem; font-weight:600; margin-left:8px; vertical-align:middle; }
   .tag-new { background:rgba(255,55,95,0.15); color:var(--pink); }
   .tag-guide { background:rgba(255,159,10,0.15); color:var(--orange); }
+  /* Sub-cards for episode outcomes */
+  .card-sub {
+    display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:10px;
+    background:rgba(255,255,255,0.015); border:1px solid rgba(255,255,255,0.05);
+    text-decoration:none; color:var(--gray1); transition:all 0.3s;
+    margin-left:42px; /* indent under parent episode */
+  }
+  .card-sub:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.1); transform:translateY(-1px); }
+  .card-sub .card-icon { font-size:1.1rem; }
+  .card-sub .card-title { font-size:0.82rem; font-weight:600; color:var(--gray1); margin-bottom:0; }
+  .card-sub .card-desc { font-size:0.7rem; color:var(--gray2); line-height:1.4; }
+  .card-sub .tag { font-size:0.6rem; padding:1px 6px; }
   .footer { margin-top:48px; text-align:center; color:var(--gray2); font-size:0.8rem; line-height:1.8; }
   .footer a { color:var(--orange); text-decoration:none; }
 </style>
@@ -78,11 +90,11 @@
         <div class="card-desc">代码=文字，AI帮你写代码，你来当设计师</div>
       </div>
     </a>
-    <a class="card" href="typing-game.html" style="border-color:rgba(255,55,95,0.2);background:rgba(255,55,95,0.03);">
-      <div class="card-icon">⌨️</div>
+    <a class="card-sub" href="typing-game.html">
+      <div class="card-icon">🎮</div>
       <div>
-        <div class="card-title">🎮 甜品城堡打字乐园 <span class="tag tag-new">EP04成果</span></div>
-        <div class="card-desc">7岁孩子和AI合作做出的打字游戏，来玩！</div>
+        <div class="card-title">⌨️ 甜品城堡打字乐园 <span class="tag tag-new">成果</span></div>
+        <div class="card-desc">和AI合作做出的打字游戏</div>
       </div>
     </a>
     <a class="card" href="ep05.html">
@@ -92,18 +104,18 @@
         <div class="card-desc">人脑vs AI，谁的记忆力更强？做你自己的翻牌游戏</div>
       </div>
     </a>
-    <a class="card" href="dessert-memory-game.html" style="border-color:rgba(255,55,95,0.2);background:rgba(255,55,95,0.03);">
-      <div class="card-icon">🍰</div>
+    <a class="card-sub" href="dessert-memory-game.html">
+      <div class="card-icon">🎮</div>
       <div>
-        <div class="card-title">🎮 甜品记忆王国 <span class="tag tag-new">EP05成果</span></div>
-        <div class="card-desc">翻牌配对甜品，挑战你的记忆力！</div>
+        <div class="card-title">🍰 甜品记忆王国 <span class="tag tag-new">成果</span></div>
+        <div class="card-desc">翻牌配对甜品，挑战记忆力</div>
       </div>
     </a>
-    <a class="card" href="jump-cat-game.html" style="border-color:rgba(255,55,95,0.2);background:rgba(255,55,95,0.03);">
-      <div class="card-icon">🐱</div>
+    <a class="card-sub" href="jump-cat-game.html">
+      <div class="card-icon">🎮</div>
       <div>
-        <div class="card-title">🎮 跳跳猫 <span class="tag tag-new">EP05成果</span></div>
-        <div class="card-desc">控制小猫跳跃冒险，击败章鱼Boss！</div>
+        <div class="card-title">🐱 跳跳猫 <span class="tag tag-new">成果</span></div>
+        <div class="card-desc">控制小猫跳跃冒险，击败Boss</div>
       </div>
     </a>
   </div>
